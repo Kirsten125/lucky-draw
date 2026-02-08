@@ -426,7 +426,7 @@
 
   <div class="container">
     <header>
-      <h1>新年抽籤 Lucky Draw</h1>
+      <h1 id="mainTitle">新年運勢抽籤</h1>
       <p class="subtitle" id="subtitleText">按下「抽籤」抽出今日祝福。</p>
     </header>
 
@@ -490,41 +490,44 @@
 // =========================
 const uiText = {
   zh: {
+    title: "新年運勢抽籤",
     subtitle: "按下「抽籤」抽出今日祝福。",
     drawBtn: "🎋 抽籤",
+    resetBtn: "重置籤筒",
     tubeLabel: "籤筒",
     copyBtn: "📋 複製籤詩",
     shareBtn: "📲 分享",
     noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。"
   },
   en: {
+    title: "Lucky Draw",
     subtitle: 'Press "Lucky Draw" to receive today’s blessing.',
     drawBtn: "🎋 Lucky Draw",
-    tubeLabel: "Lucky Draw Tube",
-    copyBtn: "📋 Copy the Lucky Draw",
+    resetBtn: "Reset Tube",
+    tubeLabel: "Fortune Tube",
+    copyBtn: "📋 Copy Fortune",
     shareBtn: "📲 Share",
-    noteText: "Note: The Lucky Draw is for reference only. Please do not be overly superstitious."
+    noteText: "Note: This fortune is for reference only. Please do not be overly superstitious."
   }
 };
+
 
 function applyLanguageUI(){
   const t = uiText[currentLang];
 
-  const subtitleEl = document.getElementById("subtitleText");
-  const tubeLabelEl = document.getElementById("tubeLabel");
+  document.getElementById("mainTitle").textContent = t.title;
+  document.getElementById("subtitleText").textContent = t.subtitle;
 
-  if(subtitleEl) subtitleEl.textContent = t.subtitle;
-
-  // 這些按鈕本來就有 id
   document.getElementById("drawBtn").textContent = t.drawBtn;
+  document.getElementById("resetBtn").textContent = t.resetBtn;
+
   document.getElementById("copyBtn").textContent = t.copyBtn;
   document.getElementById("shareBtn").textContent = t.shareBtn;
 
-  if(tubeLabelEl) tubeLabelEl.textContent = t.tubeLabel;
-
-  const noteEl = document.getElementById("noteText");
-  if(noteEl) noteEl.textContent = t.noteText;
+  document.getElementById("tubeLabel").textContent = t.tubeLabel;
+  document.getElementById("noteText").textContent = t.noteText;
 }
+
 
 
     // =========================
