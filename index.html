@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>新年抽籤詩 Lucky Draw</title>
+  <title>新年運勢抽籤</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0b0f">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <style>
     :root{
@@ -175,6 +180,12 @@
       background: rgba(197,48,48,0.2);
       color: #ffb3b3;
       border: 1px solid rgba(197,48,48,0.35);
+    }
+
+    .btn-install{
+      background: rgba(246,210,123,0.12);
+      color: var(--gold);
+      border: 1px solid rgba(246,210,123,0.25);
     }
 
     /* =========================
@@ -361,11 +372,6 @@
       line-height: 1.7;
     }
 
-    .small{
-      font-size: 12px;
-      color: rgba(255,255,255,0.45);
-    }
-
     /* =========================
        掉籤動畫（籤紙）
     ========================= */
@@ -410,6 +416,105 @@
       70%  { top: 70px; transform: translateX(-50%) rotate(5deg); }
       100% { top: 120px; opacity: 0; transform: translateX(-50%) rotate(0deg); }
     }
+
+    /* =========================
+       祈願儀式 Modal
+    ========================= */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal{
+      width: min(520px, 100%);
+      background: rgba(20,20,25,0.95);
+      border: 1px solid rgba(246,210,123,0.22);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      text-align: center;
+    }
+
+    .modal h2{
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .modal p{
+      margin: 0 0 12px 0;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      white-space: pre-line;
+    }
+
+    .modal .modal-actions{
+      display:flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    /* =========================
+       進度 Overlay
+    ========================= */
+    .progress-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9998;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .progress-box{
+      width: min(420px, 100%);
+      background: rgba(15,15,20,0.95);
+      border: 1px solid rgba(246,210,123,0.2);
+      border-radius: 18px;
+      padding: 16px;
+      text-align:center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    .spinner{
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 4px solid rgba(246,210,123,0.25);
+      border-top: 4px solid rgba(246,210,123,0.9);
+      margin: 0 auto 12px auto;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin{
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-text{
+      color: rgba(255,255,255,0.9);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .progress-sub{
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.6;
+    }
   </style>
 </head>
 
@@ -424,6 +529,27 @@
     <div class="lantern lantern-5"></div>
   </div>
 
+  <!-- 祈願儀式 Modal -->
+  <div class="modal-overlay" id="ritualOverlay">
+    <div class="modal">
+      <h2 id="ritualTitle">抽籤前祈願</h2>
+      <p id="ritualText">請在心中默念你的願望\n深呼吸三次\n準備好後按「開始抽籤」</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="ritualStartBtn">開始抽籤</button>
+        <button class="btn btn-ghost" id="ritualCancelBtn">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 進度 Overlay -->
+  <div class="progress-overlay" id="progressOverlay">
+    <div class="progress-box">
+      <div class="spinner"></div>
+      <div class="progress-text" id="progressText">抽籤中...</div>
+      <div class="progress-sub" id="progressSub">請稍候</div>
+    </div>
+  </div>
+
   <div class="container">
     <header>
       <h1 id="mainTitle">新年運勢抽籤</h1>
@@ -435,6 +561,7 @@
         <button class="btn btn-primary" id="drawBtn">🎋 抽籤</button>
 
         <div class="lang-switch">
+          <button class="btn btn-install hidden" id="installBtn">📲 安裝</button>
           <button class="btn btn-ghost" id="zhBtn">中文</button>
           <button class="btn btn-ghost" id="enBtn">English</button>
           <button class="btn btn-danger" id="resetBtn">重置籤筒</button>
@@ -468,7 +595,7 @@
 
         <div class="actions">
           <button class="btn btn-ghost" id="copyBtn">📋 複製籤詩</button>
-          <button class="btn btn-ghost" id="shareBtn">📲 分享</button>
+          <button class="btn btn-ghost" id="shareBtn">🖼️ 分享圖片</button>
         </div>
 
         <div class="note" id="noteText">
@@ -477,7 +604,7 @@
       </div>
 
       <footer>
-        <div>Happy Lunar New Year</div>
+        <div id="footerText">Happy Lunar New Year</div>
       </footer>
     </div>
   </div>
@@ -486,49 +613,68 @@
     let currentLang = "zh";
 
     // =========================
-// UI 中英文字典
-// =========================
-const uiText = {
-  zh: {
-    title: "新年運勢抽籤",
-    subtitle: "按下「抽籤」抽出今日祝福。",
-    drawBtn: "🎋 抽籤",
-    resetBtn: "重置籤筒",
-    tubeLabel: "籤筒",
-    copyBtn: "📋 複製籤詩",
-    shareBtn: "📲 分享",
-    noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。"
-  },
-  en: {
-    title: "Lucky Draw",
-    subtitle: 'Press "Lucky Draw" to receive today’s blessing.',
-    drawBtn: "🎋 Lucky Draw",
-    resetBtn: "Reset Tube",
-    tubeLabel: "Fortune Tube",
-    copyBtn: "📋 Copy Fortune",
-    shareBtn: "📲 Share",
-    noteText: "Note: This fortune is for reference only. Please do not be overly superstitious."
-  }
-};
+    // UI 中英文字典（含 alert/confirm）
+    // =========================
+    const uiText = {
+      zh: {
+        title: "新年運勢抽籤",
+        subtitle: "按下「抽籤」抽出今日祝福。",
+        drawBtn: "🎋 抽籤",
+        resetBtn: "重置籤筒",
+        tubeLabel: "籤筒",
+        copyBtn: "📋 複製籤詩",
+        shareBtn: "🖼️ 分享圖片",
+        noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。",
+        footer: "Happy Lunar New Year",
 
+        ritualTitle: "抽籤前祈願",
+        ritualText: "請在心中默念你的願望\n深呼吸三次\n準備好後按「開始抽籤」",
+        ritualStart: "開始抽籤",
+        ritualCancel: "取消",
 
-function applyLanguageUI(){
-  const t = uiText[currentLang];
+        progressMain: "抽籤中...",
+        progressShaking: "正在搖籤...",
+        progressDrawing: "正在抽籤...",
+        progressReveal: "正在揭曉結果...",
 
-  document.getElementById("mainTitle").textContent = t.title;
-  document.getElementById("subtitleText").textContent = t.subtitle;
+        confirmReset: "確定要重置籤筒嗎？所有籤會重新洗牌。",
+        alertEmptyTube: "籤筒已抽完，請按「重置籤筒」重新開始。",
+        alertNeedDraw: "請先抽一支籤。",
+        alertCopyDone: "已複製到剪貼簿！",
+        alertShareNotSupported: "你的裝置不支援分享圖片功能，已自動下載圖片。",
+        alertShareFail: "分享失敗，已自動下載圖片。",
+        alertDownloadDone: "圖片已下載！"
+      },
+      en: {
+        title: "Lucky Draw",
+        subtitle: 'Press "Lucky Draw" to receive today’s blessing.',
+        drawBtn: "🎋 Lucky Draw",
+        resetBtn: "Reset Tube",
+        tubeLabel: "Fortune Tube",
+        copyBtn: "📋 Copy Fortune",
+        shareBtn: "🖼️ Share Image",
+        noteText: "Note: This fortune is for reference only. Please do not be overly superstitious.",
+        footer: "Happy Lunar New Year",
 
-  document.getElementById("drawBtn").textContent = t.drawBtn;
-  document.getElementById("resetBtn").textContent = t.resetBtn;
+        ritualTitle: "Before You Draw",
+        ritualText: "Please make a wish in your heart.\nTake 3 deep breaths.\nWhen ready, press Start.",
+        ritualStart: "Start",
+        ritualCancel: "Cancel",
 
-  document.getElementById("copyBtn").textContent = t.copyBtn;
-  document.getElementById("shareBtn").textContent = t.shareBtn;
+        progressMain: "Drawing...",
+        progressShaking: "Shaking the tube...",
+        progressDrawing: "Drawing a fortune...",
+        progressReveal: "Revealing the result...",
 
-  document.getElementById("tubeLabel").textContent = t.tubeLabel;
-  document.getElementById("noteText").textContent = t.noteText;
-}
-
-
+        confirmReset: "Are you sure you want to reset the tube? All fortunes will be reshuffled.",
+        alertEmptyTube: "The tube is empty. Please press Reset Tube to start again.",
+        alertNeedDraw: "Please draw a fortune first.",
+        alertCopyDone: "Copied to clipboard!",
+        alertShareNotSupported: "Your device does not support image sharing. The image has been downloaded.",
+        alertShareFail: "Share failed. The image has been downloaded instead.",
+        alertDownloadDone: "Image downloaded!"
+      }
+    };
 
     // =========================
     // 抽籤音效（Web Audio API）
@@ -598,7 +744,7 @@ function applyLanguageUI(){
     }
 
     // =========================
-    // 60 支籤詩資料庫
+    // 籤等級翻譯（一般英文）
     // =========================
     const levelTranslate = {
       "上上籤": "Excellent Fortune",
@@ -609,6 +755,9 @@ function applyLanguageUI(){
       "下籤": "Bad Fortune"
     };
 
+    // =========================
+    // 60 支籤詩資料庫
+    // =========================
     const fortunes = [
       { no: 1, level: "上上籤", zh_poem: "春風拂面喜盈門\n萬事順遂福臨身", zh_meaning: "大吉。適合開始新計畫、求職、考試、搬家，容易遇到好消息。", en_poem: "Spring breeze brings joy to your door.\nEverything flows with blessing and more.", en_meaning: "Excellent luck. Great time for new plans, job hunting, exams, and fresh starts." },
       { no: 2, level: "上籤", zh_poem: "雲散天開見月明\n前途光亮自分明", zh_meaning: "困難正在退去，事情會越來越清楚，保持耐心就會成功。", en_poem: "Clouds fade, the moon shines bright.\nYour path becomes clear with light.", en_meaning: "Troubles will fade. Stay patient and things will become clearer and better." },
@@ -674,6 +823,7 @@ function applyLanguageUI(){
 
     let remaining = [...fortunes];
     let lastResult = null;
+    let isDrawing = false;
 
     const fortuneBox = document.getElementById("fortuneBox");
     const fortuneTag = document.getElementById("fortuneTag");
@@ -682,45 +832,122 @@ function applyLanguageUI(){
     const fortuneMeaning = document.getElementById("fortuneMeaning");
     const fortuneTube = document.getElementById("fortuneTube");
 
+    const ritualOverlay = document.getElementById("ritualOverlay");
+    const ritualTitle = document.getElementById("ritualTitle");
+    const ritualText = document.getElementById("ritualText");
+    const ritualStartBtn = document.getElementById("ritualStartBtn");
+    const ritualCancelBtn = document.getElementById("ritualCancelBtn");
+
+    const progressOverlay = document.getElementById("progressOverlay");
+    const progressText = document.getElementById("progressText");
+    const progressSub = document.getElementById("progressSub");
+
+    function applyLanguageUI(){
+      const t = uiText[currentLang];
+
+      document.getElementById("mainTitle").textContent = t.title;
+      document.getElementById("subtitleText").textContent = t.subtitle;
+
+      document.getElementById("drawBtn").textContent = t.drawBtn;
+      document.getElementById("resetBtn").textContent = t.resetBtn;
+
+      document.getElementById("copyBtn").textContent = t.copyBtn;
+      document.getElementById("shareBtn").textContent = t.shareBtn;
+
+      document.getElementById("tubeLabel").textContent = t.tubeLabel;
+      document.getElementById("noteText").textContent = t.noteText;
+      document.getElementById("footerText").textContent = t.footer;
+
+      ritualTitle.textContent = t.ritualTitle;
+      ritualText.textContent = t.ritualText;
+      ritualStartBtn.textContent = t.ritualStart;
+      ritualCancelBtn.textContent = t.ritualCancel;
+
+      progressText.textContent = t.progressMain;
+      progressSub.textContent = "";
+    }
+
+    function showProgress(stageKey){
+      const t = uiText[currentLang];
+      progressOverlay.style.display = "flex";
+
+      if(stageKey === "shake"){
+        progressText.textContent = t.progressShaking;
+      }else if(stageKey === "draw"){
+        progressText.textContent = t.progressDrawing;
+      }else if(stageKey === "reveal"){
+        progressText.textContent = t.progressReveal;
+      }else{
+        progressText.textContent = t.progressMain;
+      }
+
+      progressSub.textContent = "";
+    }
+
+    function hideProgress(){
+      progressOverlay.style.display = "none";
+    }
+
     function renderFortune(f){
-  lastResult = f;
+      lastResult = f;
+      const levelEN = levelTranslate[f.level] || f.level;
 
-  const levelEN = levelTranslate[f.level] || f.level;
-
-  if(currentLang === "zh"){
-    fortuneTag.textContent = f.level;
-    fortuneNumber.textContent = "第 " + f.no + " 籤";
-    fortunePoem.textContent = f.zh_poem;
-    fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
-  }else{
-    fortuneTag.textContent = levelEN;
-    fortuneNumber.textContent = "Fortune No. " + f.no;
-    fortunePoem.textContent = f.en_poem;
-    fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
-  }
-}
-
+      if(currentLang === "zh"){
+        fortuneTag.textContent = f.level;
+        fortuneNumber.textContent = "第 " + f.no + " 籤";
+        fortunePoem.textContent = f.zh_poem;
+        fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
+      }else{
+        fortuneTag.textContent = levelEN;
+        fortuneNumber.textContent = "Fortune No. " + f.no;
+        fortunePoem.textContent = f.en_poem;
+        fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
+      }
+    }
 
     function resetFortune(){
       remaining = [...fortunes];
       lastResult = null;
 
-      fortuneTag.textContent = "尚未抽籤";
-      fortuneNumber.textContent = "---";
-      fortunePoem.textContent = "請按「抽籤」開始";
-      fortuneMeaning.textContent = "抽到籤後會顯示白話解釋與英文版內容";
+      if(currentLang === "zh"){
+        fortuneTag.textContent = "尚未抽籤";
+        fortuneNumber.textContent = "---";
+        fortunePoem.textContent = "請按「抽籤」開始";
+        fortuneMeaning.textContent = "抽到籤後會顯示白話解釋與英文版內容";
+      }else{
+        fortuneTag.textContent = "Not Drawn Yet";
+        fortuneNumber.textContent = "---";
+        fortunePoem.textContent = 'Press "Lucky Draw" to start';
+        fortuneMeaning.textContent = "After drawing, you will see the meaning and result.";
+      }
+
+      applyLanguageUI();
     }
 
-    function drawFortune(){
+    function openRitual(){
+      ritualOverlay.style.display = "flex";
+    }
+
+    function closeRitual(){
+      ritualOverlay.style.display = "none";
+    }
+
+    async function drawFortuneCore(){
+      if(isDrawing) return;
+
       if(remaining.length === 0){
-        alert("籤筒已抽完，請按「重置籤筒」重新開始。");
+        alert(uiText[currentLang].alertEmptyTube);
         return;
       }
+
+      isDrawing = true;
 
       // 震動效果（手機）
       if(navigator.vibrate){
         navigator.vibrate([80, 40, 80]);
       }
+
+      showProgress("shake");
 
       // 籤筒搖晃動畫
       fortuneTube.classList.remove("tube-shake");
@@ -742,64 +969,300 @@ function applyLanguageUI(){
       void stick.offsetWidth;
       stick.classList.add("drop-anim");
 
-      // 掉籤聲（延遲）
       setTimeout(() => {
         playDropSound();
       }, 180);
+
+      setTimeout(() => {
+        showProgress("draw");
+      }, 300);
 
       // 抽籤邏輯
       const idx = Math.floor(Math.random() * remaining.length);
       const picked = remaining[idx];
       remaining.splice(idx, 1);
 
-      // 等動畫跑一下再顯示結果，才像真的抽籤
       setTimeout(() => {
+        showProgress("reveal");
         renderFortune(picked);
-      }, 320);
+      }, 650);
 
-      // 動畫結束後隱藏籤紙
       setTimeout(() => {
         stick.classList.add("hidden");
         stick.classList.remove("drop-anim");
-      }, 850);
+        hideProgress();
+        isDrawing = false;
+      }, 1100);
     }
 
-    document.getElementById("drawBtn").addEventListener("click", drawFortune);
+    // =========================
+    // 分享圖片功能（Canvas 生成）
+    // =========================
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = text.split(" ");
+      let line = "";
+      let lines = [];
+
+      for(let n = 0; n < words.length; n++){
+        const testLine = line + words[n] + " ";
+        const metrics = ctx.measureText(testLine);
+        if(metrics.width > maxWidth && n > 0){
+          lines.push(line);
+          line = words[n] + " ";
+        }else{
+          line = testLine;
+        }
+      }
+      lines.push(line);
+
+      for(let i=0; i<lines.length; i++){
+        ctx.fillText(lines[i], x, y + (i * lineHeight));
+      }
+
+      return y + (lines.length * lineHeight);
+    }
+
+    function wrapTextByNewline(ctx, text, x, y, maxWidth, lineHeight){
+      const paragraphs = text.split("\n");
+      let currentY = y;
+
+      for(const p of paragraphs){
+        if(p.trim() === ""){
+          currentY += lineHeight;
+          continue;
+        }
+
+        const words = p.split(" ");
+        let line = "";
+
+        for(let i=0; i<words.length; i++){
+          const testLine = line + words[i] + " ";
+          const w = ctx.measureText(testLine).width;
+
+          if(w > maxWidth && i > 0){
+            ctx.fillText(line, x, currentY);
+            line = words[i] + " ";
+            currentY += lineHeight;
+          }else{
+            line = testLine;
+          }
+        }
+
+        ctx.fillText(line, x, currentY);
+        currentY += lineHeight;
+      }
+
+      return currentY;
+    }
+
+    function generateFortuneImage(){
+      if(!lastResult) return null;
+
+      const t = uiText[currentLang];
+
+      const scale = window.devicePixelRatio || 1;
+      const width = 1080;
+      const height = 1350;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(scale, scale);
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, 0, height);
+      bg.addColorStop(0, "#1a0f0a");
+      bg.addColorStop(1, "#0b0b0f");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      // Glow circles
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = "#c53030";
+      ctx.beginPath();
+      ctx.arc(900, 220, 180, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#f6d27b";
+      ctx.beginPath();
+      ctx.arc(250, 1100, 220, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+
+      // Title
+      ctx.fillStyle = "#f6d27b";
+      ctx.font = "bold 54px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(t.title, width/2, 120);
+
+      // Fortune No
+      ctx.font = "bold 34px Arial";
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      if(currentLang === "zh"){
+        ctx.fillText("第 " + lastResult.no + " 籤", width/2, 175);
+      }else{
+        ctx.fillText("Fortune No. " + lastResult.no, width/2, 175);
+      }
+
+      // Card background
+      const cardX = 90;
+      const cardY = 250;
+      const cardW = 900;
+      const cardH = 920;
+
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      ctx.strokeStyle = "rgba(246,210,123,0.25)";
+      ctx.lineWidth = 3;
+
+      function roundRect(x,y,w,h,r){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r);
+        ctx.arcTo(x,y+h,x,y,r);
+        ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath();
+      }
+
+      roundRect(cardX, cardY, cardW, cardH, 28);
+      ctx.fill();
+      ctx.stroke();
+
+      // Level tag
+      const levelEN = levelTranslate[lastResult.level] || lastResult.level;
+      const levelText = currentLang === "zh" ? lastResult.level : levelEN;
+
+      ctx.fillStyle = "rgba(246,210,123,0.15)";
+      ctx.strokeStyle = "rgba(246,210,123,0.35)";
+      roundRect(cardX+40, cardY+40, 360, 70, 35);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#f6d27b";
+      ctx.font = "bold 30px Arial";
+      ctx.textAlign = "left";
+      ctx.fillText(levelText, cardX+70, cardY+88);
+
+      // Poem
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = "bold 42px Arial";
+      ctx.textAlign = "left";
+
+      let poem = currentLang === "zh" ? lastResult.zh_poem : lastResult.en_poem;
+      let meaning = currentLang === "zh" ? ("白話解釋：\n" + lastResult.zh_meaning) : ("Meaning:\n" + lastResult.en_meaning);
+
+      let textX = cardX + 60;
+      let textY = cardY + 170;
+      let maxWidth = cardW - 120;
+
+      ctx.font = "bold 46px Arial";
+      textY = wrapTextByNewline(ctx, poem, textX, textY, maxWidth, 62) + 40;
+
+      // Meaning
+      ctx.fillStyle = "rgba(255,255,255,0.70)";
+      ctx.font = "28px Arial";
+      wrapTextByNewline(ctx, meaning, textX, textY, maxWidth, 44);
+
+      // Bottom note
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.font = "24px Arial";
+      ctx.fillText(t.noteText, width/2, height - 90);
+
+      // URL
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.font = "22px Arial";
+      ctx.fillText(window.location.href, width/2, height - 50);
+
+      return canvas;
+    }
+
+    function downloadCanvasImage(canvas){
+      const link = document.createElement("a");
+      link.download = "lucky_draw_fortune.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    async function shareCanvasImage(canvas){
+      const t = uiText[currentLang];
+
+      try{
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        const file = new File([blob], "lucky_draw_fortune.png", { type: "image/png" });
+
+        if(navigator.canShare && navigator.canShare({ files: [file] })){
+          await navigator.share({
+            title: t.title,
+            text: t.subtitle,
+            files: [file]
+          });
+        }else{
+          downloadCanvasImage(canvas);
+          alert(t.alertShareNotSupported);
+        }
+      }catch(err){
+        downloadCanvasImage(canvas);
+        alert(t.alertShareFail);
+      }
+    }
+
+    // =========================
+    // 按鈕事件
+    // =========================
+    document.getElementById("drawBtn").addEventListener("click", () => {
+      openRitual();
+    });
+
+    ritualCancelBtn.addEventListener("click", () => {
+      closeRitual();
+    });
+
+    ritualStartBtn.addEventListener("click", () => {
+      closeRitual();
+      drawFortuneCore();
+    });
 
     document.getElementById("resetBtn").addEventListener("click", () => {
-      if(confirm("確定要重置籤筒嗎？所有籤會重新洗牌。")){
+      const t = uiText[currentLang];
+      if(confirm(t.confirmReset)){
         resetFortune();
       }
     });
 
-   document.getElementById("zhBtn").addEventListener("click", () => {
-  currentLang = "zh";
-  applyLanguageUI();
-  if(lastResult) renderFortune(lastResult);
-});
+    document.getElementById("zhBtn").addEventListener("click", () => {
+      currentLang = "zh";
+      applyLanguageUI();
+      if(lastResult) renderFortune(lastResult);
+      else resetFortune();
+    });
 
-document.getElementById("enBtn").addEventListener("click", () => {
-  currentLang = "en";
-  applyLanguageUI();
-  if(lastResult) renderFortune(lastResult);
-});
+    document.getElementById("enBtn").addEventListener("click", () => {
+      currentLang = "en";
+      applyLanguageUI();
+      if(lastResult) renderFortune(lastResult);
+      else resetFortune();
+    });
 
-applyLanguageUI();
-    
     document.getElementById("copyBtn").addEventListener("click", async () => {
+      const t = uiText[currentLang];
+
       if(!lastResult){
-        alert("請先抽一支籤。");
+        alert(t.alertNeedDraw);
         return;
       }
 
       let text = "";
+
       if(currentLang === "zh"){
         text =
           `【${lastResult.level}】第 ${lastResult.no} 籤\n\n` +
           `${lastResult.zh_poem}\n\n` +
           `白話解釋：${lastResult.zh_meaning}\n\n` +
           `新年快樂！`;
-        
       }else{
         const levelEN = levelTranslate[lastResult.level] || lastResult.level;
 
@@ -808,46 +1271,60 @@ applyLanguageUI();
           `${lastResult.en_poem}\n\n` +
           `Meaning: ${lastResult.en_meaning}\n\n` +
           `Happy Lunar New Year!`;
-}
-
+      }
 
       await navigator.clipboard.writeText(text);
-      alert("已複製到剪貼簿！");
+      alert(t.alertCopyDone);
     });
 
     document.getElementById("shareBtn").addEventListener("click", async () => {
+      const t = uiText[currentLang];
+
       if(!lastResult){
-        alert("請先抽一支籤。");
+        alert(t.alertNeedDraw);
         return;
       }
 
-      let shareText = "";
-      if(currentLang === "zh"){
-        shareText =
-          `我抽到【${lastResult.level}】第 ${lastResult.no} 籤：\n` +
-          `${lastResult.zh_poem}\n` +
-          `解釋：${lastResult.zh_meaning}`;
-      }else{
-  const levelEN = levelTranslate[lastResult.level] || lastResult.level;
-
-  shareText =
-    `I got Fortune No. ${lastResult.no} (${levelEN}):\n` +
-    `${lastResult.en_poem}\n` +
-    `Meaning: ${lastResult.en_meaning}`;
-}
-
-
-      if(navigator.share){
-        navigator.share({
-          title: "Lucky Draw",
-          text: shareText,
-          url: window.location.href
-        });
-      }else{
-        await navigator.clipboard.writeText(window.location.href);
-        alert("你的裝置不支援分享功能，已複製網址！");
+      const canvas = generateFortuneImage();
+      if(!canvas){
+        alert(t.alertShareFail);
+        return;
       }
+
+      await shareCanvasImage(canvas);
     });
+
+    // =========================
+    // PWA 安裝功能
+    // =========================
+    let deferredPrompt = null;
+    const installBtn = document.getElementById("installBtn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove("hidden");
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt = null;
+      installBtn.classList.add("hidden");
+    });
+
+    // =========================
+    // Service Worker 註冊
+    // =========================
+    if("serviceWorker" in navigator){
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+      });
+    }
+
+    // 初次載入
+    applyLanguageUI();
+    resetFortune();
   </script>
 </body>
 </html>
