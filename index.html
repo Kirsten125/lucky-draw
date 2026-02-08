@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>新年抽籤詩 Lucky Draw</title>
+
+  <style>
+    :root{
+      --bg1:#0b0b0f;
+      --bg2:#1a0f0a;
+      --card:#14141a;
+      --gold:#f6d27b;
+      --gold2:#d9a441;
+      --red:#c53030;
+      --text:#f7f7f7;
+      --muted:#b9b9c5;
+    }
+
+    body{
+      margin:0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      color: var(--text);
+      min-height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding: 20px;
+    }
+
+    .container{
+      width: min(900px, 100%);
+    }
+
+    header{
+      text-align:center;
+      margin-bottom: 20px;
+    }
+
+    h1{
+      margin: 0 0 8px 0;
+      font-size: 30px;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+
+    .subtitle{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .panel{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .top-controls{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .lang-switch{
+      display:flex;
+      gap: 8px;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    .btn:active{
+      transform: scale(0.97);
+    }
+
+    .btn-primary{
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color:#111;
+    }
+
+    .btn-ghost{
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .btn-danger{
+      background: rgba(197,48,48,0.2);
+      color: #ffb3b3;
+      border: 1px solid rgba(197,48,48,0.35);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .fortune-box{
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(246,210,123,0.22);
+      border-radius: 18px;
+      padding: 18px;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .seal{
+      position:absolute;
+      right:-30px;
+      top:-30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(197,48,48,0.9), rgba(197,48,48,0.25));
+      border-radius: 50%;
+      filter: blur(0.2px);
+      opacity: 0.6;
+    }
+
+    .fortune-title{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tag{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(246,210,123,0.12);
+      border: 1px solid rgba(246,210,123,0.22);
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .fortune-number{
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .fortune-poem{
+      margin-top: 12px;
+      font-size: 18px;
+      line-height: 1.9;
+      letter-spacing: 1px;
+      white-space: pre-line;
+    }
+
+    .fortune-meaning{
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+      white-space: pre-line;
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .shake{
+      animation: shake 0.55s ease;
+    }
+
+    @keyframes shake{
+      0% { transform: translateX(0); }
+      15% { transform: translateX(-6px) rotate(-0.5deg); }
+      30% { transform: translateX(6px) rotate(0.5deg); }
+      45% { transform: translateX(-4px); }
+      60% { transform: translateX(4px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    footer{
+      text-align:center;
+      margin-top: 16px;
+      color: rgba(255,255,255,0.35);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .note{
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    .small{
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>新年抽籤詩 Lucky Draw</h1>
+      <p class="subtitle">按下「抽籤」抽出今日祝福，適合農曆新年活動，給外國朋友體驗超有氣氛。</p>
+    </header>
+
+    <div class="panel">
+      <div class="top-controls">
+        <button class="btn btn-primary" id="drawBtn">🎋 抽籤</button>
+
+        <div class="lang-switch">
+          <button class="btn btn-ghost" id="zhBtn">中文</button>
+          <button class="btn btn-ghost" id="enBtn">English</button>
+          <button class="btn btn-danger" id="resetBtn">重置籤筒</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="fortune-box" id="fortuneBox">
+          <div class="seal"></div>
+
+          <div class="fortune-title">
+            <div class="tag" id="fortuneTag">尚未抽籤</div>
+            <div class="fortune-number" id="fortuneNumber">---</div>
+          </div>
+
+          <div class="fortune-poem" id="fortunePoem">
+請按「抽籤」開始
+          </div>
+
+          <div class="fortune-meaning" id="fortuneMeaning">
+抽到籤後會顯示白話解釋與英文版內容
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-ghost" id="copyBtn">📋 複製籤詩</button>
+            <button class="btn btn-ghost" id="shareBtn">📲 分享</button>
+          </div>
+
+          <div class="note" id="noteText">
+            小提醒：抽籤是祝福儀式，適合搭配「祈願」或「祝福交換」活動一起玩。
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div>Made for Lunar New Year vibes.</div>
+        <div class="small">你可以在資料庫新增更多籤詩，內容在程式碼最下方 fortunes 陣列。</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    let currentLang = "zh";
+
+    const fortunes = [
+      {
+        no: 1,
+        level: "上上籤",
+        zh_poem: "春風得意馬蹄疾\n一日看盡長安花",
+        zh_meaning: "運勢大開，近期會遇到好機會。行動越快，收穫越大。適合求職、考試、搬家、創業。",
+        en_poem: "With spring breeze, the horse runs fast.\nIn one day, you see all the flowers of Chang’an.",
+        en_meaning: "Great luck is coming. Opportunities appear quickly. Take action now and you will gain more."
+      },
+      {
+        no: 2,
+        level: "上籤",
+        zh_poem: "雲開月出見光明\n不必憂疑事自成",
+        zh_meaning: "困難正在消散，事情會慢慢順利。不要焦慮，保持耐心就會成功。",
+        en_poem: "Clouds part, the moon shines bright.\nNo need to worry, things will work out.",
+        en_meaning: "Problems are clearing. Be patient and confident. The result will be positive."
+      },
+      {
+        no: 3,
+        level: "上籤",
+        zh_poem: "一葉扁舟順水行\n前程萬里自通明",
+        zh_meaning: "適合旅行、換工作、換環境。走出去會遇到貴人，越動越順。",
+        en_poem: "A small boat flows with the river.\nA bright future stretches far ahead.",
+        en_meaning: "Good timing for travel or change. Moving forward brings helpful people and smoother progress."
+      },
+      {
+        no: 4,
+        level: "中上籤",
+        zh_poem: "花開堪折直須折\n莫待無花空折枝",
+        zh_meaning: "機會來了要把握。不要拖延，現在做比以後更好。",
+        en_poem: "Pick the flower when it blooms.\nDo not wait until the branch is bare.",
+        en_meaning: "Act now. Do not delay. This is the right moment to seize the opportunity."
+      },
+      {
+        no: 5,
+        level: "中籤",
+        zh_poem: "山重水複疑無路\n柳暗花明又一村",
+        zh_meaning: "你現在可能卡關，但再努力一下會出現新方向。不要放棄。",
+        en_poem: "Mountains and rivers block the way.\nYet beyond the shade, a new village appears.",
+        en_meaning: "You may feel stuck, but a new solution is near. Keep going."
+      },
+      {
+        no: 6,
+        level: "中籤",
+        zh_poem: "風平浪靜宜行舟\n守得雲開見月明",
+        zh_meaning: "這是一個穩定期，不適合衝動。慢慢累積，後面會更好。",
+        en_poem: "Calm seas are good for sailing.\nWait until clouds clear and the moon appears.",
+        en_meaning: "Stay steady. Avoid impulsive moves. Patience will bring improvement."
+      },
+      {
+        no: 7,
+        level: "中下籤",
+        zh_poem: "欲速則不達\n心急反生亂",
+        zh_meaning: "你太急會壞事。先整理好計畫，事情自然會更順。",
+        en_poem: "Haste brings no success.\nAn anxious heart creates chaos.",
+        en_meaning: "Slow down. Plan carefully. Rushing will cause mistakes."
+      },
+      {
+        no: 8,
+        level: "下籤",
+        zh_poem: "浮雲蔽日難見明\n暫且安身莫遠行",
+        zh_meaning: "最近不適合冒險或做重大決定。先穩住現狀，等機會更明朗。",
+        en_poem: "Clouds cover the sun, no light is seen.\nStay grounded, do not rush far.",
+        en_meaning: "Not a good time for risky choices. Keep things stable and wait for clearer timing."
+      },
+      {
+        no: 9,
+        level: "中上籤",
+        zh_poem: "貴人相助添福壽\n逢凶化吉喜臨門",
+        zh_meaning: "會有人主動幫你，事情也會轉好。保持友善與感恩，運氣更旺。",
+        en_poem: "A helpful person brings fortune.\nBad luck turns into joy at your door.",
+        en_meaning: "Support will arrive. Your situation improves. Stay open and grateful."
+      },
+      {
+        no: 10,
+        level: "上籤",
+        zh_poem: "金榜題名非偶然\n十年寒窗一日還",
+        zh_meaning: "努力會得到回報。適合考試、升遷、申請學校、求職面試。",
+        en_poem: "Success is never by chance.\nYears of effort return in one day.",
+        en_meaning: "Hard work pays off. Great sign for exams, interviews, promotions, and applications."
+      },
+      {
+        no: 11,
+        level: "中籤",
+        zh_poem: "平平淡淡才是真\n一步一腳印向前行",
+        zh_meaning: "不會突然爆紅，但你走的路是對的。穩定努力就會越來越好。",
+        en_poem: "Simple and steady is true.\nStep by step, move forward.",
+        en_meaning: "Not dramatic luck, but strong long term progress. Keep building steadily."
+      },
+      {
+        no: 12,
+        level: "上上籤",
+        zh_poem: "福星高照喜盈門\n萬事如意樂無邊",
+        zh_meaning: "大吉。適合許願、告白、開工、聚會。今天你的氣場很旺。",
+        en_poem: "A lucky star shines above.\nJoy fills your home, all goes well.",
+        en_meaning: "Excellent luck. Great day for wishes, new beginnings, gatherings, and positive actions."
+      }
+    ];
+
+    let remaining = [...fortunes];
+    let lastResult = null;
+
+    const fortuneBox = document.getElementById("fortuneBox");
+    const fortuneTag = document.getElementById("fortuneTag");
+    const fortuneNumber = document.getElementById("fortuneNumber");
+    const fortunePoem = document.getElementById("fortunePoem");
+    const fortuneMeaning = document.getElementById("fortuneMeaning");
+
+    function renderFortune(f){
+      lastResult = f;
+
+      fortuneTag.textContent = f.level;
+      fortuneNumber.textContent = "第 " + f.no + " 籤";
+
+      if(currentLang === "zh"){
+        fortunePoem.textContent = f.zh_poem;
+        fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
+      }else{
+        fortunePoem.textContent = f.en_poem;
+        fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
+      }
+    }
+
+    function drawFortune(){
+      if(remaining.length === 0){
+        alert("籤筒已抽完，請按「重置籤筒」重新開始。");
+        return;
+      }
+
+      fortuneBox.classList.remove("shake");
+      void fortuneBox.offsetWidth;
+      fortuneBox.classList.add("shake");
+
+      const idx = Math.floor(Math.random() * remaining.length);
+      const picked = remaining[idx];
+      remaining.splice(idx, 1);
+
+      setTimeout(() => {
+        renderFortune(picked);
+      }, 250);
+    }
+
+    function resetFortune(){
+      remaining = [...fortunes];
+      lastResult = null;
+
+      fortuneTag.textContent = "尚未抽籤";
+      fortuneNumber.textContent = "---";
+      fortunePoem.textContent = "請按「抽籤」開始";
+      fortuneMeaning.textContent = "抽到籤後會顯示白話解釋與英文版內容";
+    }
+
+    document.getElementById("drawBtn").addEventListener("click", drawFortune);
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if(confirm("確定要重置籤筒嗎？所有籤會重新洗牌。")){
+        resetFortune();
+      }
+    });
+
+    document.getElementById("zhBtn").addEventListener("click", () => {
+      currentLang = "zh";
+      if(lastResult) renderFortune(lastResult);
+    });
+
+    document.getElementById("enBtn").addEventListener("click", () => {
+      currentLang = "en";
+      if(lastResult) renderFortune(lastResult);
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      if(!lastResult){
+        alert("請先抽一支籤。");
+        return;
+      }
+
+      let text = "";
+      if(currentLang === "zh"){
+        text =
+          `【${lastResult.level}】第 ${lastResult.no} 籤\n\n` +
+          `${lastResult.zh_poem}\n\n` +
+          `白話解釋：${lastResult.zh_meaning}\n\n` +
+          `新年快樂！`;
+      }else{
+        text =
+          `【${lastResult.level}】Fortune No. ${lastResult.no}\n\n` +
+          `${lastResult.en_poem}\n\n` +
+          `Meaning: ${lastResult.en_meaning}\n\n` +
+          `Happy Lunar New Year!`;
+      }
+
+      await navigator.clipboard.writeText(text);
+      alert("已複製到剪貼簿！");
+    });
+
+    document.getElementById("shareBtn").addEventListener("click", async () => {
+      if(!lastResult){
+        alert("請先抽一支籤。");
+        return;
+      }
+
+      let shareText = "";
+      if(currentLang === "zh"){
+        shareText =
+          `我抽到【${lastResult.level}】第 ${lastResult.no} 籤：\n` +
+          `${lastResult.zh_poem}\n` +
+          `解釋：${lastResult.zh_meaning}`;
+      }else{
+        shareText =
+          `I got Fortune No. ${lastResult.no} (${lastResult.level}):\n` +
+          `${lastResult.en_poem}\n` +
+          `Meaning: ${lastResult.en_meaning}`;
+      }
+
+      if(navigator.share){
+        navigator.share({
+          title: "Lucky Draw",
+          text: shareText,
+          url: window.location.href
+        });
+      }else{
+        await navigator.clipboard.writeText(window.location.href);
+        alert("你的裝置不支援分享功能，已複製網址！");
+      }
+    });
+  </script>
+</body>
+</html>
