@@ -9,7 +9,6 @@
     :root{
       --bg1:#0b0b0f;
       --bg2:#1a0f0a;
-      --card:#14141a;
       --gold:#f6d27b;
       --gold2:#d9a441;
       --red:#c53030;
@@ -18,15 +17,6 @@
     }
 
     body{
-      <!-- 背景燈籠動畫 -->
-    <div class="lantern-bg">
-    <div class="lantern lantern-1"></div>
-    <div class="lantern lantern-2"></div>
-    <div class="lantern lantern-3"></div>
-    <div class="lantern lantern-4"></div>
-    <div class="lantern lantern-5"></div>
-  </div>
-
       margin:0;
       font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
       background: radial-gradient(circle at top, var(--bg2), var(--bg1));
@@ -36,15 +26,87 @@
       justify-content:center;
       align-items:center;
       padding: 20px;
+      overflow-x: hidden;
     }
 
+    /* =========================
+       燈籠背景動畫
+    ========================= */
+    .lantern-bg{
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.65;
+    }
+
+    .lantern{
+      position: absolute;
+      width: 70px;
+      height: 95px;
+      border-radius: 18px 18px 30px 30px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), rgba(197,48,48,0.9));
+      border: 1px solid rgba(246,210,123,0.55);
+      box-shadow: 0 0 30px rgba(246,210,123,0.25);
+      animation: floatUp 9s infinite ease-in-out, sway 3.5s infinite ease-in-out;
+    }
+
+    .lantern::before{
+      content:"";
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 22px;
+      border-radius: 10px;
+      background: rgba(246,210,123,0.95);
+      box-shadow: 0 0 12px rgba(246,210,123,0.6);
+    }
+
+    .lantern::after{
+      content:"";
+      position:absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 30px;
+      background: rgba(246,210,123,0.6);
+    }
+
+    .lantern-1{ left: 8%; top: 110%; animation-delay: 0s; transform: scale(0.9); }
+    .lantern-2{ left: 22%; top: 130%; animation-delay: 1.2s; transform: scale(0.7); }
+    .lantern-3{ left: 55%; top: 115%; animation-delay: 0.6s; transform: scale(1.1); }
+    .lantern-4{ left: 78%; top: 140%; animation-delay: 1.8s; transform: scale(0.85); }
+    .lantern-5{ left: 90%; top: 125%; animation-delay: 0.9s; transform: scale(0.65); }
+
+    @keyframes floatUp{
+      0%   { transform: translateY(0) scale(0.9); opacity: 0; }
+      10%  { opacity: 0.9; }
+      50%  { opacity: 0.7; }
+      100% { transform: translateY(-160vh) scale(1.05); opacity: 0; }
+    }
+
+    @keyframes sway{
+      0% { margin-left: 0px; }
+      50% { margin-left: 18px; }
+      100% { margin-left: 0px; }
+    }
+
+    /* =========================
+       主要內容
+    ========================= */
     .container{
       width: min(900px, 100%);
+      position: relative;
+      z-index: 2;
     }
 
     header{
       text-align:center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     h1{
@@ -81,6 +143,7 @@
     .lang-switch{
       display:flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .btn{
@@ -88,7 +151,7 @@
       cursor:pointer;
       border-radius: 12px;
       padding: 10px 14px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 14px;
       transition: transform 0.12s ease, opacity 0.12s ease;
     }
@@ -114,12 +177,91 @@
       border: 1px solid rgba(197,48,48,0.35);
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
+    /* =========================
+       籤筒圖片（CSS 模擬）
+    ========================= */
+    .tube-area{
+      display:flex;
+      justify-content:center;
+      margin: 6px 0 14px 0;
     }
 
+    .fortune-tube{
+      width: 140px;
+      height: 180px;
+      border-radius: 26px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(246,210,123,0.35);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(245, 205, 135, 0.85) 0px,
+          rgba(220, 165, 80, 0.92) 10px,
+          rgba(190, 130, 60, 0.92) 20px
+        );
+    }
+
+    .fortune-tube::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height: 22px;
+      background: rgba(0,0,0,0.35);
+      border-bottom: 2px solid rgba(246,210,123,0.35);
+    }
+
+    .fortune-tube::after{
+      content:"";
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height: 22px;
+      background: rgba(0,0,0,0.35);
+      border-top: 2px solid rgba(246,210,123,0.35);
+    }
+
+    .tube-label{
+      position:absolute;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 120px;
+      border-radius: 14px;
+      background: rgba(197,48,48,0.82);
+      border: 1px solid rgba(246,210,123,0.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 3px;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      box-shadow: 0 0 20px rgba(197,48,48,0.25);
+    }
+
+    .tube-shake{
+      animation: tubeShake 0.5s ease;
+    }
+
+    @keyframes tubeShake{
+      0% { transform: rotate(0deg); }
+      20% { transform: rotate(-3deg); }
+      40% { transform: rotate(3deg); }
+      60% { transform: rotate(-2deg); }
+      80% { transform: rotate(2deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* =========================
+       籤詩顯示卡
+    ========================= */
     .fortune-box{
       background: rgba(0,0,0,0.35);
       border: 1px solid rgba(246,210,123,0.22);
@@ -156,7 +298,7 @@
       background: rgba(246,210,123,0.12);
       border: 1px solid rgba(246,210,123,0.22);
       color: var(--gold);
-      font-weight: 800;
+      font-weight: 900;
       font-size: 13px;
       letter-spacing: 1px;
     }
@@ -225,126 +367,63 @@
     }
 
     /* =========================
-   燈籠背景動畫
-========================= */
-.lantern-bg{
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0.65;
-}
+       掉籤動畫（籤紙）
+    ========================= */
+    .stick-drop{
+      position: absolute;
+      top: -160px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 220px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(246,210,123,0.95), rgba(255,255,255,0.92));
+      border: 2px solid rgba(217,164,65,0.85);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 5;
+    }
 
-.lantern{
-  position: absolute;
-  width: 70px;
-  height: 95px;
-  border-radius: 18px 18px 30px 30px;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), rgba(197,48,48,0.9));
-  border: 1px solid rgba(246,210,123,0.55);
-  box-shadow: 0 0 30px rgba(246,210,123,0.25);
-  animation: floatUp 9s infinite ease-in-out, sway 3.5s infinite ease-in-out;
-}
+    .stick-drop::before{
+      content:"福";
+      position:absolute;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 900;
+      font-size: 28px;
+      color: rgba(197,48,48,0.9);
+      letter-spacing: 3px;
+    }
 
-.lantern::before{
-  content:"";
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 22px;
-  border-radius: 10px;
-  background: rgba(246,210,123,0.95);
-  box-shadow: 0 0 12px rgba(246,210,123,0.6);
-}
+    .hidden{
+      display:none;
+    }
 
-.lantern::after{
-  content:"";
-  position:absolute;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 30px;
-  background: rgba(246,210,123,0.6);
-}
+    .drop-anim{
+      display:block;
+      animation: dropStick 0.75s cubic-bezier(.2,.9,.3,1) forwards;
+    }
 
-.lantern-1{ left: 8%; top: 110%; animation-delay: 0s; transform: scale(0.9); }
-.lantern-2{ left: 22%; top: 130%; animation-delay: 1.2s; transform: scale(0.7); }
-.lantern-3{ left: 55%; top: 115%; animation-delay: 0.6s; transform: scale(1.1); }
-.lantern-4{ left: 78%; top: 140%; animation-delay: 1.8s; transform: scale(0.85); }
-.lantern-5{ left: 90%; top: 125%; animation-delay: 0.9s; transform: scale(0.65); }
-
-@keyframes floatUp{
-  0%   { transform: translateY(0) scale(0.9); opacity: 0; }
-  10%  { opacity: 0.9; }
-  50%  { opacity: 0.7; }
-  100% { transform: translateY(-160vh) scale(1.05); opacity: 0; }
-}
-
-@keyframes sway{
-  0% { margin-left: 0px; }
-  50% { margin-left: 18px; }
-  100% { margin-left: 0px; }
-}
-
-/* =========================
-   掉籤動畫（籤紙）
-========================= */
-.stick-drop{
-  position: absolute;
-  top: -160px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 220px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(246,210,123,0.95), rgba(255,255,255,0.92));
-  border: 2px solid rgba(217,164,65,0.85);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  z-index: 5;
-}
-
-.stick-drop::before{
-  content:"福";
-  position:absolute;
-  top: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-weight: 900;
-  font-size: 28px;
-  color: rgba(197,48,48,0.9);
-  letter-spacing: 3px;
-}
-
-.hidden{
-  display:none;
-}
-
-.drop-anim{
-  display:block;
-  animation: dropStick 0.75s cubic-bezier(.2,.9,.3,1) forwards;
-}
-
-@keyframes dropStick{
-  0%   { top: -180px; opacity: 0; transform: translateX(-50%) rotate(-8deg); }
-  35%  { opacity: 1; }
-  70%  { top: 70px; transform: translateX(-50%) rotate(5deg); }
-  100% { top: 120px; opacity: 0; transform: translateX(-50%) rotate(0deg); }
-}
-
-/* 讓主要內容蓋過背景 */
-.container{
-  position: relative;
-  z-index: 2;
-}
-
+    @keyframes dropStick{
+      0%   { top: -180px; opacity: 0; transform: translateX(-50%) rotate(-8deg); }
+      35%  { opacity: 1; }
+      70%  { top: 70px; transform: translateX(-50%) rotate(5deg); }
+      100% { top: 120px; opacity: 0; transform: translateX(-50%) rotate(0deg); }
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- 背景燈籠動畫 -->
+  <div class="lantern-bg">
+    <div class="lantern lantern-1"></div>
+    <div class="lantern lantern-2"></div>
+    <div class="lantern lantern-3"></div>
+    <div class="lantern lantern-4"></div>
+    <div class="lantern lantern-5"></div>
+  </div>
+
   <div class="container">
     <header>
       <h1>新年抽籤詩 Lucky Draw</h1>
@@ -362,39 +441,44 @@
         </div>
       </div>
 
-      <div class="grid">
-        <div class="fortune-box" id="fortuneBox">
-          <!-- 掉籤動畫用的籤紙 -->
-          <div id="stickDrop" class="stick-drop hidden"></div>
-          <div class="seal"></div>
+      <!-- 籤筒圖片 -->
+      <div class="tube-area">
+        <div id="fortuneTube" class="fortune-tube">
+          <div class="tube-label">籤筒</div>
+        </div>
+      </div>
 
-          <div class="fortune-title">
-            <div class="tag" id="fortuneTag">尚未抽籤</div>
-            <div class="fortune-number" id="fortuneNumber">---</div>
-          </div>
+      <div class="fortune-box" id="fortuneBox">
 
-          <div class="fortune-poem" id="fortunePoem">
-請按「抽籤」開始
-          </div>
+        <!-- 掉籤動畫用的籤紙 -->
+        <div id="stickDrop" class="stick-drop hidden"></div>
 
-          <div class="fortune-meaning" id="fortuneMeaning">
+        <div class="seal"></div>
+
+        <div class="fortune-title">
+          <div class="tag" id="fortuneTag">尚未抽籤</div>
+          <div class="fortune-number" id="fortuneNumber">---</div>
+        </div>
+
+        <div class="fortune-poem" id="fortunePoem">請按「抽籤」開始</div>
+
+        <div class="fortune-meaning" id="fortuneMeaning">
 抽到籤後會顯示白話解釋與英文版內容
-          </div>
+        </div>
 
-          <div class="actions">
-            <button class="btn btn-ghost" id="copyBtn">📋 複製籤詩</button>
-            <button class="btn btn-ghost" id="shareBtn">📲 分享</button>
-          </div>
+        <div class="actions">
+          <button class="btn btn-ghost" id="copyBtn">📋 複製籤詩</button>
+          <button class="btn btn-ghost" id="shareBtn">📲 分享</button>
+        </div>
 
-          <div class="note" id="noteText">
-            小提醒：抽籤是祝福儀式，適合搭配「祈願」或「祝福交換」活動一起玩。
-          </div>
+        <div class="note" id="noteText">
+          小提醒：抽籤是祝福儀式，適合搭配「祈願」或「祝福交換」活動一起玩。
         </div>
       </div>
 
       <footer>
         <div>Made for Lunar New Year vibes.</div>
-        <div class="small">你可以在資料庫新增更多籤詩，內容在程式碼最下方 fortunes 陣列。</div>
+        <div class="small">你可以在程式碼內新增更多籤詩，直接增加 fortunes 陣列即可。</div>
       </footer>
     </div>
   </div>
@@ -403,560 +487,137 @@
     let currentLang = "zh";
 
     // =========================
-// 抽籤音效（Web Audio API）
-// =========================
-let audioCtx = null;
+    // 抽籤音效（Web Audio API）
+    // =========================
+    let audioCtx = null;
 
-function initAudio(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-}
+    function initAudio(){
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
 
-function playShakeSound(){
-  initAudio();
+    function playShakeSound(){
+      initAudio();
 
-  const now = audioCtx.currentTime;
-  const duration = 0.45;
+      const now = audioCtx.currentTime;
+      const duration = 0.45;
 
-  const bufferSize = audioCtx.sampleRate * duration;
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
 
-  for(let i=0; i<bufferSize; i++){
-    data[i] = (Math.random() * 2 - 1) * 0.25;
-  }
+      for(let i=0; i<bufferSize; i++){
+        data[i] = (Math.random() * 2 - 1) * 0.25;
+      }
 
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buffer;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
 
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.setValueAtTime(900, now);
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(900, now);
 
-  const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.55, now + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.55, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-  noise.connect(filter);
-  filter.connect(gain);
-  gain.connect(audioCtx.destination);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
 
-  noise.start(now);
-  noise.stop(now + duration);
-}
+      noise.start(now);
+      noise.stop(now + duration);
+    }
 
-function playDropSound(){
-  initAudio();
+    function playDropSound(){
+      initAudio();
 
-  const now = audioCtx.currentTime;
+      const now = audioCtx.currentTime;
 
-  const osc = audioCtx.createOscillator();
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(520, now);
-  osc.frequency.exponentialRampToValueAtTime(220, now + 0.18);
+      const osc = audioCtx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.18);
 
-  const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.55, now + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.55, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
 
-  osc.start(now);
-  osc.stop(now + 0.25);
-}
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
 
-
-const fortunes = [
-  {
-    no: 1,
-    level: "上上籤",
-    zh_poem: "春風拂面喜盈門\n萬事順遂福臨身",
-    zh_meaning: "大吉。適合開始新計畫、求職、考試、搬家，容易遇到好消息。",
-    en_poem: "Spring breeze brings joy to your door.\nEverything flows with blessing and more.",
-    en_meaning: "Excellent luck. Great time for new plans, job hunting, exams, and fresh starts."
-  },
-  {
-    no: 2,
-    level: "上籤",
-    zh_poem: "雲散天開見月明\n前途光亮自分明",
-    zh_meaning: "困難正在退去，事情會越來越清楚，保持耐心就會成功。",
-    en_poem: "Clouds fade, the moon shines bright.\nYour path becomes clear with light.",
-    en_meaning: "Troubles will fade. Stay patient and things will become clearer and better."
-  },
-  {
-    no: 3,
-    level: "中籤",
-    zh_poem: "小雨過後花更香\n平心自得路更長",
-    zh_meaning: "雖然有些小阻礙，但結果會更好。穩穩走，不要急。",
-    en_poem: "After light rain, flowers smell sweet.\nWith calm heart, your road is complete.",
-    en_meaning: "Small obstacles may appear, but outcomes improve. Stay calm and steady."
-  },
-  {
-    no: 4,
-    level: "上籤",
-    zh_poem: "貴人相助添福氣\n順水行舟好時機",
-    zh_meaning: "會遇到願意幫你的人，適合主動開口、爭取資源。",
-    en_poem: "A helpful person brings you grace.\nGo with the flow and win the race.",
-    en_meaning: "Support will come. Speak up and take opportunities actively."
-  },
-  {
-    no: 5,
-    level: "中下籤",
-    zh_poem: "心急反易生差錯\n慢行一步更穩妥",
-    zh_meaning: "最近不適合衝動決定，先做準備再行動，會比較安全。",
-    en_poem: "Hurry brings mistakes and fear.\nSlow down and the path is clear.",
-    en_meaning: "Avoid impulsive choices. Prepare first, then move forward."
-  },
-  {
-    no: 6,
-    level: "中籤",
-    zh_poem: "平平淡淡是福氣\n踏實前行見新意",
-    zh_meaning: "運勢普通但穩定。只要持續努力，就會慢慢看到成果。",
-    en_poem: "Simple days can be a blessing.\nKeep walking, progress is progressing.",
-    en_meaning: "Luck is steady. Keep working and you will see results over time."
-  },
-  {
-    no: 7,
-    level: "上上籤",
-    zh_poem: "金光照耀福星現\n喜事連連到眼前",
-    zh_meaning: "大吉。容易收到好消息，適合告白、合作、談條件。",
-    en_poem: "Golden light, your lucky star appears.\nJoy arrives and removes your fears.",
-    en_meaning: "Excellent fortune. Great for love, deals, partnerships, and negotiations."
-  },
-  {
-    no: 8,
-    level: "下籤",
-    zh_poem: "浮雲遮月難見明\n守住本分免虛驚",
-    zh_meaning: "近期容易迷惘或判斷失準，不宜做重大決策，先穩住現況。",
-    en_poem: "Clouds hide the moon, the light is gone.\nStay steady until the storm moves on.",
-    en_meaning: "Confusion may arise. Avoid big decisions and focus on stability."
-  },
-  {
-    no: 9,
-    level: "中籤",
-    zh_poem: "路雖彎曲終可達\n心若堅定不怕差",
-    zh_meaning: "目標可以達成，但需要多一點時間與耐心。",
-    en_poem: "Though the road is winding and long,\nStay determined and you stay strong.",
-    en_meaning: "You will reach your goal, but it may take more time and patience."
-  },
-  {
-    no: 10,
-    level: "上籤",
-    zh_poem: "柳暗花明又一村\n轉念之間得新門",
-    zh_meaning: "卡關會突然出現轉機。換個方法或換個角度，就會突破。",
-    en_poem: "Beyond the shade, a village shines.\nA new idea brings better signs.",
-    en_meaning: "A breakthrough is near. Change your approach and new opportunities appear."
-  },
-  {
-    no: 11,
-    level: "中上籤",
-    zh_poem: "有志者事竟成\n一心一意自光明",
-    zh_meaning: "只要堅持，就會成功。適合準備考試、面試或長期目標。",
-    en_poem: "Where there is will, success will follow.\nStay focused, your future will glow.",
-    en_meaning: "Persistence brings success. Great for exams, interviews, and long term goals."
-  },
-  {
-    no: 12,
-    level: "上上籤",
-    zh_poem: "福到心頭喜氣生\n好運連來步步升",
-    zh_meaning: "大吉。近期運勢旺，做事容易順利，適合開工與新開始。",
-    en_poem: "Blessings arrive, joy begins.\nGood luck comes, and you will win.",
-    en_meaning: "Excellent luck. Perfect for new beginnings and important actions."
-  },
-  {
-    no: 13,
-    level: "中籤",
-    zh_poem: "順其自然心自安\n時機成熟萬事寬",
-    zh_meaning: "不要硬推，事情會在適當時機自然變好。",
-    en_poem: "Let things flow, your heart will rest.\nWhen time is right, things turn best.",
-    en_meaning: "Do not force it. Timing will bring improvement naturally."
-  },
-  {
-    no: 14,
-    level: "中下籤",
-    zh_poem: "口舌是非多小心\n少說多做保安寧",
-    zh_meaning: "小心誤會與流言。低調做事最安全，避免衝突。",
-    en_poem: "Gossip and conflict may appear.\nSpeak less, act more, stay clear.",
-    en_meaning: "Be careful of misunderstandings. Stay calm and avoid arguments."
-  },
-  {
-    no: 15,
-    level: "上籤",
-    zh_poem: "春雨滋潤萬物生\n努力耕耘有收成",
-    zh_meaning: "付出會得到回報。適合學習、工作進修、累積技能。",
-    en_poem: "Spring rain feeds the growing seed.\nHard work will bring what you need.",
-    en_meaning: "Your effort will pay off. Great for study, work, and skill building."
-  },
-  {
-    no: 16,
-    level: "中籤",
-    zh_poem: "一分耕耘一分收\n莫求速成莫煩憂",
-    zh_meaning: "穩穩累積就會成功，別急著想立刻看到成果。",
-    en_poem: "You reap what you sow each day.\nDo not rush, just keep your way.",
-    en_meaning: "Progress is steady. Avoid rushing and results will come."
-  },
-  {
-    no: 17,
-    level: "上籤",
-    zh_poem: "喜鵲登枝報好音\n佳期將近福自臨",
-    zh_meaning: "有好消息靠近，適合約會、聚會、合作與旅行。",
-    en_poem: "A magpie sings, good news is near.\nJoyful days are coming, have no fear.",
-    en_meaning: "Good news is approaching. Great for love, teamwork, and travel."
-  },
-  {
-    no: 18,
-    level: "下籤",
-    zh_poem: "前路迷霧暫難行\n收斂鋒芒守本心",
-    zh_meaning: "近期容易遇到阻礙，先不要冒險，先把基本做好。",
-    en_poem: "Fog blocks the road, slow your pace.\nHold your ground and keep your grace.",
-    en_meaning: "Obstacles may appear. Avoid risks and focus on your foundation."
-  },
-  {
-    no: 19,
-    level: "中籤",
-    zh_poem: "水到渠成不必催\n守得花開春自來",
-    zh_meaning: "耐心等待，時機到了自然會成功。",
-    en_poem: "When water flows, the channel forms.\nWait and success will come in storms.",
-    en_meaning: "Patience is key. Success arrives naturally when the timing is right."
-  },
-  {
-    no: 20,
-    level: "上上籤",
-    zh_poem: "一輪明月照千里\n心想事成萬事吉",
-    zh_meaning: "大吉。願望容易實現，適合許願、求財、求工作。",
-    en_poem: "Bright moon shines across the land.\nYour wishes come true as planned.",
-    en_meaning: "Excellent fortune. Great for wishes, wealth, and career opportunities."
-  },
-
-  {
-    no: 21,
-    level: "中上籤",
-    zh_poem: "新芽破土迎朝日\n努力終將成大事",
-    zh_meaning: "你正在成長期，現在的努力會在未來爆發成果。",
-    en_poem: "New sprouts rise to greet the sun.\nYour hard work will not be undone.",
-    en_meaning: "You are growing. Your effort will lead to big results later."
-  },
-  {
-    no: 22,
-    level: "中籤",
-    zh_poem: "風來雲去皆有時\n不急不躁最相宜",
-    zh_meaning: "運勢普通，別急。保持節奏會更順。",
-    en_poem: "Winds and clouds come and go.\nStay calm and let it flow.",
-    en_meaning: "Luck is average. Keep calm and steady, and things will improve."
-  },
-  {
-    no: 23,
-    level: "上籤",
-    zh_poem: "開門見喜迎福到\n貴人提攜路更高",
-    zh_meaning: "適合求職、升遷、談合作，會有人帶你走捷徑。",
-    en_poem: "Open the door, good luck appears.\nA helper comes and lifts your gears.",
-    en_meaning: "Great for career and deals. A helpful person will support your progress."
-  },
-  {
-    no: 24,
-    level: "中下籤",
-    zh_poem: "夜深莫走崎嶇路\n謹慎行事免後顧",
-    zh_meaning: "近期要注意安全與合約細節，不要衝動投資或答應。",
-    en_poem: "Do not walk rough roads at night.\nBe careful and protect your right.",
-    en_meaning: "Be cautious with safety and contracts. Avoid impulsive promises or investments."
-  },
-  {
-    no: 25,
-    level: "中籤",
-    zh_poem: "先苦後甜終有報\n一步一腳印更牢",
-    zh_meaning: "前面辛苦，但後面會甜。撐住就是你的勝利。",
-    en_poem: "Hard first, sweet later you will see.\nStep by step builds victory.",
-    en_meaning: "Difficulties come first, but rewards follow. Keep going steadily."
-  },
-  {
-    no: 26,
-    level: "上籤",
-    zh_poem: "寶劍鋒從磨礪出\n功名富貴在前途",
-    zh_meaning: "你的努力會被看見。適合面試、競爭、展現實力。",
-    en_poem: "A sharp sword comes from grinding stone.\nSuccess appears when you stand alone.",
-    en_meaning: "Your effort will be recognized. Great for interviews and competition."
-  },
-  {
-    no: 27,
-    level: "中籤",
-    zh_poem: "人和事順皆可成\n笑口常開福自生",
-    zh_meaning: "人際運不錯，多微笑、多交流會帶來好機會。",
-    en_poem: "With harmony, things will be done.\nSmile often and you will win.",
-    en_meaning: "Good social luck. Friendly communication brings opportunities."
-  },
-  {
-    no: 28,
-    level: "下籤",
-    zh_poem: "逆水行舟費力多\n暫避鋒芒保安和",
-    zh_meaning: "目前阻力較大，先退一步不代表輸，保留實力最重要。",
-    en_poem: "Rowing upstream takes great strain.\nStep back to avoid needless pain.",
-    en_meaning: "Resistance is strong now. Step back and save energy for better timing."
-  },
-  {
-    no: 29,
-    level: "中上籤",
-    zh_poem: "東風吹來百花開\n舊事消散新運來",
-    zh_meaning: "新的機會出現，適合改變環境、重新開始。",
-    en_poem: "East wind comes, flowers bloom.\nNew luck arrives, removing gloom.",
-    en_meaning: "New opportunities are coming. Great time for change and fresh starts."
-  },
-  {
-    no: 30,
-    level: "上上籤",
-    zh_poem: "喜氣滿堂福滿門\n財來運轉好乾坤",
-    zh_meaning: "大吉。財運旺、人氣旺，適合做生意、開工、聚會。",
-    en_poem: "Joy fills the house, blessings stay.\nFortune turns your world today.",
-    en_meaning: "Excellent luck. Great for business, wealth, and social gatherings."
-  },
-
-  {
-    no: 31,
-    level: "中籤",
-    zh_poem: "天晴路遠任君行\n勤奮之人得功名",
-    zh_meaning: "只要你肯努力，結果不會差。適合持續推進。",
-    en_poem: "Clear skies guide your road.\nHard workers carry a golden load.",
-    en_meaning: "Keep working steadily. Your outcome will be good."
-  },
-  {
-    no: 32,
-    level: "中下籤",
-    zh_poem: "花未開時莫強求\n守住初心自無憂",
-    zh_meaning: "時機還沒到，不要逼自己或逼別人。放鬆會更順。",
-    en_poem: "Do not force a flower to bloom.\nStay true, avoid the gloom.",
-    en_meaning: "Timing is not ready. Do not force things, relax and wait."
-  },
-  {
-    no: 33,
-    level: "上籤",
-    zh_poem: "一朝得遇明師指\n千里前程不再疑",
-    zh_meaning: "會遇到指導者或貴人，聽建議會讓你少走冤枉路。",
-    en_poem: "A wise guide appears one day.\nYour doubts will fade away.",
-    en_meaning: "A mentor or helper will appear. Follow advice and your path becomes easier."
-  },
-  {
-    no: 34,
-    level: "中籤",
-    zh_poem: "有得有失皆常事\n知足常樂福自至",
-    zh_meaning: "近期得失參半，但整體不差。保持心態最重要。",
-    en_poem: "Gain and loss are part of life.\nStay content, avoid the strife.",
-    en_meaning: "Mixed luck, but stable overall. Mindset matters most."
-  },
-  {
-    no: 35,
-    level: "上籤",
-    zh_poem: "風順帆高行萬里\n福星照耀事皆宜",
-    zh_meaning: "運勢提升，適合旅行、換工作、拓展人脈。",
-    en_poem: "Smooth wind lifts your sail.\nWith lucky star, you will not fail.",
-    en_meaning: "Luck is rising. Great for travel, career change, and networking."
-  },
-  {
-    no: 36,
-    level: "中籤",
-    zh_poem: "一盞明燈照前路\n心中有光不怕苦",
-    zh_meaning: "你會找到方向。只要堅持，困難會慢慢變小。",
-    en_poem: "A small lamp lights your way.\nWith hope inside, you will stay.",
-    en_meaning: "You will find direction. Keep hope and difficulties will fade."
-  },
-  {
-    no: 37,
-    level: "中下籤",
-    zh_poem: "人情冷暖皆須看\n莫把真心付錯端",
-    zh_meaning: "小心看人，不要太快相信承諾。先觀察再決定。",
-    en_poem: "Warm or cold, people may change.\nDo not trust too fast, it feels strange.",
-    en_meaning: "Be careful with trust. Observe first before making commitments."
-  },
-  {
-    no: 38,
-    level: "上籤",
-    zh_poem: "寶船入港財自來\n努力經營福常在",
-    zh_meaning: "財運不錯，但要靠經營。努力越多，收穫越大。",
-    en_poem: "A treasure ship comes to shore.\nWork well and gain much more.",
-    en_meaning: "Good financial luck. The more effort you invest, the more you gain."
-  },
-  {
-    no: 39,
-    level: "下籤",
-    zh_poem: "一時衝動惹麻煩\n退讓一步保平安",
-    zh_meaning: "近期容易吵架或情緒失控。退一步不是輸，是保護自己。",
-    en_poem: "Impulsive acts may bring trouble.\nStep back and avoid the rubble.",
-    en_meaning: "Emotions may cause conflict. Stay calm and step back for safety."
-  },
-  {
-    no: 40,
-    level: "上上籤",
-    zh_poem: "天賜良機莫錯過\n鴻運當頭喜更多",
-    zh_meaning: "大吉。機會突然降臨，記得把握，越主動越好。",
-    en_poem: "Heaven sends a chance so rare.\nGrab it fast, show you care.",
-    en_meaning: "Excellent fortune. A rare opportunity arrives. Act quickly and confidently."
-  },
-
-  {
-    no: 41,
-    level: "中籤",
-    zh_poem: "路上遇雨不須愁\n雨過天晴景更柔",
-    zh_meaning: "短暫挫折會過去，保持耐心，結果反而更好。",
-    en_poem: "Rain on the road is not the end.\nAfter it clears, the sky will mend.",
-    en_meaning: "Temporary setbacks will pass. Stay patient and results improve."
-  },
-  {
-    no: 42,
-    level: "上籤",
-    zh_poem: "人逢喜事精神爽\n好運來時擋不住",
-    zh_meaning: "近期容易有好事發生，適合聚會、旅行、談合作。",
-    en_poem: "Good news makes your spirit bright.\nWhen luck comes, it feels so right.",
-    en_meaning: "Good things are coming. Great for meetings, travel, and cooperation."
-  },
-  {
-    no: 43,
-    level: "中下籤",
-    zh_poem: "眼前小利莫貪求\n留得清白好自由",
-    zh_meaning: "不要為了小利益做冒險決定。保守一點會比較安全。",
-    en_poem: "Do not chase small gain in haste.\nKeep your honor, do not waste.",
-    en_meaning: "Avoid greedy or risky choices. Staying cautious brings safety."
-  },
-  {
-    no: 44,
-    level: "中籤",
-    zh_poem: "行到水窮仍有路\n轉個彎處見坦途",
-    zh_meaning: "你以為走不下去，其實只是需要轉方向。換方法就好。",
-    en_poem: "When the river ends, a path appears.\nTurn a corner, lose your fears.",
-    en_meaning: "A solution exists. Change direction or strategy and you will progress."
-  },
-  {
-    no: 45,
-    level: "上籤",
-    zh_poem: "春回大地萬象新\n今日所求皆可成",
-    zh_meaning: "適合重新開始，做新的計畫，越快開始越好。",
-    en_poem: "Spring returns, all things renew.\nWhat you seek may come true.",
-    en_meaning: "Perfect for a fresh start. Begin your plan now for best results."
-  },
-  {
-    no: 46,
-    level: "中籤",
-    zh_poem: "平安就是最大福\n知足自然心不苦",
-    zh_meaning: "近期重點在穩定與健康。不要過度操心，先顧好自己。",
-    en_poem: "Peace is the greatest wealth.\nBe content and protect your health.",
-    en_meaning: "Focus on stability and health. Do not overthink, take care of yourself."
-  },
-  {
-    no: 47,
-    level: "上上籤",
-    zh_poem: "福祿雙全添喜氣\n家和人旺萬事宜",
-    zh_meaning: "大吉。家庭、人際、財運都旺。適合辦活動、合作、結交朋友。",
-    en_poem: "Blessings and wealth come as one.\nHarmony brings success for everyone.",
-    en_meaning: "Excellent luck. Great for relationships, family, and social success."
-  },
-  {
-    no: 48,
-    level: "中籤",
-    zh_poem: "一顆善心結善緣\n好運終會回到前",
-    zh_meaning: "多幫助人、多微笑，你的好運會慢慢回來。",
-    en_poem: "A kind heart builds good ties.\nGood luck returns in time and rises.",
-    en_meaning: "Kindness attracts luck. Help others and good things will return."
-  },
-  {
-    no: 49,
-    level: "下籤",
-    zh_poem: "急於求成難如願\n暫時停步保周全",
-    zh_meaning: "最近不適合硬拚。先休息整理，再重新出發。",
-    en_poem: "If you rush, you may fall.\nPause for safety, stand up tall.",
-    en_meaning: "Not the best time to force progress. Rest, reorganize, then continue."
-  },
-  {
-    no: 50,
-    level: "上籤",
-    zh_poem: "船到橋頭自然直\n柳暗花明又見日",
-    zh_meaning: "別擔心太多，事情最後會有解法，結果會比你想像好。",
-    en_poem: "When the boat meets the bridge, it goes straight.\nLight appears after darkness and wait.",
-    en_meaning: "Do not worry too much. Solutions will appear and outcomes will improve."
-  },
-
-  {
-    no: 51,
-    level: "中上籤",
-    zh_poem: "雖有波折終得安\n守住初心福自還",
-    zh_meaning: "有小阻礙但會過去，只要不放棄，最後會平安成功。",
-    en_poem: "Though twists appear, you will be fine.\nStay true, and luck will align.",
-    en_meaning: "Small challenges may come, but you will overcome them with persistence."
-  },
-  {
-    no: 52,
-    level: "中籤",
-    zh_poem: "燈火闌珊人未散\n前路雖慢仍可盼",
-    zh_meaning: "進度慢沒關係，你正在前進。保持耐心就會到達。",
-    en_poem: "Lights are dim, yet people stay.\nSlow progress still leads the way.",
-    en_meaning: "Even if progress is slow, you are moving forward. Keep going patiently."
-  },
-  {
-    no: 53,
-    level: "中下籤",
-    zh_poem: "舊事未清新事難\n先理舊帳再向前",
-    zh_meaning: "先把未完成的事情處理好，新的計畫才會順利。",
-    en_poem: "If old matters remain undone,\nNew plans may not smoothly run.",
-    en_meaning: "Finish old tasks first. Then new opportunities will flow more easily."
-  },
-  {
-    no: 54,
-    level: "上籤",
-    zh_poem: "良緣天定終相遇\n真心相待得幸福",
-    zh_meaning: "感情運不錯，適合交朋友、告白、修復關係。",
-    en_poem: "True bonds will meet in time.\nWith honest heart, love will climb.",
-    en_meaning: "Good relationship luck. Great for making friends, romance, and healing bonds."
-  },
-  {
-    no: 55,
-    level: "中籤",
-    zh_poem: "財如流水來又去\n守得住才是真福",
-    zh_meaning: "有進財機會，但也容易花掉。記得理財與節制。",
-    en_poem: "Money flows like moving streams.\nSaving well fulfills your dreams.",
-    en_meaning: "Income may come, but spending may rise too. Manage your money wisely."
-  },
-  {
-    no: 56,
-    level: "上籤",
-    zh_poem: "努力之人天不負\n好運終會在前途",
-    zh_meaning: "持續努力就會被看見，適合追求升遷、學業、證照。",
-    en_poem: "Heaven rewards the ones who try.\nGood fortune waits as time goes by.",
-    en_meaning: "Hard work will be rewarded. Great for study, promotion, and certifications."
-  },
-  {
-    no: 57,
-    level: "中籤",
-    zh_poem: "心若不亂路自明\n平穩踏實最要緊",
-    zh_meaning: "最近要穩住心態，別被外界影響，做好自己最重要。",
-    en_poem: "If your heart is calm, your road is clear.\nSteady steps bring success near.",
-    en_meaning: "Keep your mind calm. Do not be distracted. Stability leads to success."
-  },
-  {
-    no: 58,
-    level: "中下籤",
-    zh_poem: "天有風雲難預測\n凡事留心免差錯",
-    zh_meaning: "最近變數較多，做事要多準備 Plan B，避免大意。",
-    en_poem: "The sky may change without a sign.\nBe prepared, and you will be fine.",
-    en_meaning: "Uncertainty is higher now. Prepare a backup plan and avoid careless mistakes."
-  },
-  {
-    no: 59,
-    level: "上上籤",
-    zh_poem: "福到人間喜氣濃\n萬事如意步步通",
-    zh_meaning: "大吉。運勢超旺，做什麼都順。適合許願、抽獎、旅行、告白。",
-    en_poem: "Blessings arrive with joyful cheer.\nEverything goes well this year.",
-    en_meaning: "Excellent fortune. Great for wishes, travel, love, and big opportunities."
-  },
-  {
-    no: 60,
-    level: "上籤",
-    zh_poem: "一帆風順行千里\n平安喜樂在心底",
-    zh_meaning: "整體運勢順，適合出國、遠行、搬家、拓展新生活。",
-    en_poem: "Smooth sailing for miles and more.\nPeace and joy come to your core.",
-    en_meaning: "Good overall luck. Great for travel, moving, and starting a new life chapter."
-  }
-];
-
+    // =========================
+    // 60 支籤詩資料庫
+    // =========================
+    const fortunes = [
+      { no: 1, level: "上上籤", zh_poem: "春風拂面喜盈門\n萬事順遂福臨身", zh_meaning: "大吉。適合開始新計畫、求職、考試、搬家，容易遇到好消息。", en_poem: "Spring breeze brings joy to your door.\nEverything flows with blessing and more.", en_meaning: "Excellent luck. Great time for new plans, job hunting, exams, and fresh starts." },
+      { no: 2, level: "上籤", zh_poem: "雲散天開見月明\n前途光亮自分明", zh_meaning: "困難正在退去，事情會越來越清楚，保持耐心就會成功。", en_poem: "Clouds fade, the moon shines bright.\nYour path becomes clear with light.", en_meaning: "Troubles will fade. Stay patient and things will become clearer and better." },
+      { no: 3, level: "中籤", zh_poem: "小雨過後花更香\n平心自得路更長", zh_meaning: "雖然有些小阻礙，但結果會更好。穩穩走，不要急。", en_poem: "After light rain, flowers smell sweet.\nWith calm heart, your road is complete.", en_meaning: "Small obstacles may appear, but outcomes improve. Stay calm and steady." },
+      { no: 4, level: "上籤", zh_poem: "貴人相助添福氣\n順水行舟好時機", zh_meaning: "會遇到願意幫你的人，適合主動開口、爭取資源。", en_poem: "A helpful person brings you grace.\nGo with the flow and win the race.", en_meaning: "Support will come. Speak up and take opportunities actively." },
+      { no: 5, level: "中下籤", zh_poem: "心急反易生差錯\n慢行一步更穩妥", zh_meaning: "最近不適合衝動決定，先做準備再行動，會比較安全。", en_poem: "Hurry brings mistakes and fear.\nSlow down and the path is clear.", en_meaning: "Avoid impulsive choices. Prepare first, then move forward." },
+      { no: 6, level: "中籤", zh_poem: "平平淡淡是福氣\n踏實前行見新意", zh_meaning: "運勢普通但穩定。只要持續努力，就會慢慢看到成果。", en_poem: "Simple days can be a blessing.\nKeep walking, progress is progressing.", en_meaning: "Luck is steady. Keep working and you will see results over time." },
+      { no: 7, level: "上上籤", zh_poem: "金光照耀福星現\n喜事連連到眼前", zh_meaning: "大吉。容易收到好消息，適合告白、合作、談條件。", en_poem: "Golden light, your lucky star appears.\nJoy arrives and removes your fears.", en_meaning: "Excellent fortune. Great for love, deals, partnerships, and negotiations." },
+      { no: 8, level: "下籤", zh_poem: "浮雲遮月難見明\n守住本分免虛驚", zh_meaning: "近期容易迷惘或判斷失準，不宜做重大決策，先穩住現況。", en_poem: "Clouds hide the moon, the light is gone.\nStay steady until the storm moves on.", en_meaning: "Confusion may arise. Avoid big decisions and focus on stability." },
+      { no: 9, level: "中籤", zh_poem: "路雖彎曲終可達\n心若堅定不怕差", zh_meaning: "目標可以達成，但需要多一點時間與耐心。", en_poem: "Though the road is winding and long,\nStay determined and you stay strong.", en_meaning: "You will reach your goal, but it may take more time and patience." },
+      { no: 10, level: "上籤", zh_poem: "柳暗花明又一村\n轉念之間得新門", zh_meaning: "卡關會突然出現轉機。換個方法或換個角度，就會突破。", en_poem: "Beyond the shade, a village shines.\nA new idea brings better signs.", en_meaning: "A breakthrough is near. Change your approach and new opportunities appear." },
+      { no: 11, level: "中上籤", zh_poem: "有志者事竟成\n一心一意自光明", zh_meaning: "只要堅持，就會成功。適合準備考試、面試或長期目標。", en_poem: "Where there is will, success will follow.\nStay focused, your future will glow.", en_meaning: "Persistence brings success. Great for exams, interviews, and long term goals." },
+      { no: 12, level: "上上籤", zh_poem: "福到心頭喜氣生\n好運連來步步升", zh_meaning: "大吉。近期運勢旺，做事容易順利，適合開工與新開始。", en_poem: "Blessings arrive, joy begins.\nGood luck comes, and you will win.", en_meaning: "Excellent luck. Perfect for new beginnings and important actions." },
+      { no: 13, level: "中籤", zh_poem: "順其自然心自安\n時機成熟萬事寬", zh_meaning: "不要硬推，事情會在適當時機自然變好。", en_poem: "Let things flow, your heart will rest.\nWhen time is right, things turn best.", en_meaning: "Do not force it. Timing will bring improvement naturally." },
+      { no: 14, level: "中下籤", zh_poem: "口舌是非多小心\n少說多做保安寧", zh_meaning: "小心誤會與流言。低調做事最安全，避免衝突。", en_poem: "Gossip and conflict may appear.\nSpeak less, act more, stay clear.", en_meaning: "Be careful of misunderstandings. Stay calm and avoid arguments." },
+      { no: 15, level: "上籤", zh_poem: "春雨滋潤萬物生\n努力耕耘有收成", zh_meaning: "付出會得到回報。適合學習、工作進修、累積技能。", en_poem: "Spring rain feeds the growing seed.\nHard work will bring what you need.", en_meaning: "Your effort will pay off. Great for study, work, and skill building." },
+      { no: 16, level: "中籤", zh_poem: "一分耕耘一分收\n莫求速成莫煩憂", zh_meaning: "穩穩累積就會成功，別急著想立刻看到成果。", en_poem: "You reap what you sow each day.\nDo not rush, just keep your way.", en_meaning: "Progress is steady. Avoid rushing and results will come." },
+      { no: 17, level: "上籤", zh_poem: "喜鵲登枝報好音\n佳期將近福自臨", zh_meaning: "有好消息靠近，適合約會、聚會、合作與旅行。", en_poem: "A magpie sings, good news is near.\nJoyful days are coming, have no fear.", en_meaning: "Good news is approaching. Great for love, teamwork, and travel." },
+      { no: 18, level: "下籤", zh_poem: "前路迷霧暫難行\n收斂鋒芒守本心", zh_meaning: "近期容易遇到阻礙，先不要冒險，先把基本做好。", en_poem: "Fog blocks the road, slow your pace.\nHold your ground and keep your grace.", en_meaning: "Obstacles may appear. Avoid risks and focus on your foundation." },
+      { no: 19, level: "中籤", zh_poem: "水到渠成不必催\n守得花開春自來", zh_meaning: "耐心等待，時機到了自然會成功。", en_poem: "When water flows, the channel forms.\nWait and success will come in time.", en_meaning: "Patience is key. Success arrives naturally when the timing is right." },
+      { no: 20, level: "上上籤", zh_poem: "一輪明月照千里\n心想事成萬事吉", zh_meaning: "大吉。願望容易實現，適合許願、求財、求工作。", en_poem: "Bright moon shines across the land.\nYour wishes come true as planned.", en_meaning: "Excellent fortune. Great for wishes, wealth, and career opportunities." },
+      { no: 21, level: "中上籤", zh_poem: "新芽破土迎朝日\n努力終將成大事", zh_meaning: "你正在成長期，現在的努力會在未來爆發成果。", en_poem: "New sprouts rise to greet the sun.\nYour hard work will not be undone.", en_meaning: "You are growing. Your effort will lead to big results later." },
+      { no: 22, level: "中籤", zh_poem: "風來雲去皆有時\n不急不躁最相宜", zh_meaning: "運勢普通，別急。保持節奏會更順。", en_poem: "Winds and clouds come and go.\nStay calm and let it flow.", en_meaning: "Luck is average. Keep calm and steady, and things will improve." },
+      { no: 23, level: "上籤", zh_poem: "開門見喜迎福到\n貴人提攜路更高", zh_meaning: "適合求職、升遷、談合作，會有人帶你走捷徑。", en_poem: "Open the door, good luck appears.\nA helper comes and lifts your gears.", en_meaning: "Great for career and deals. A helpful person will support your progress." },
+      { no: 24, level: "中下籤", zh_poem: "夜深莫走崎嶇路\n謹慎行事免後顧", zh_meaning: "近期要注意安全與合約細節，不要衝動投資或答應。", en_poem: "Do not walk rough roads at night.\nBe careful and protect your right.", en_meaning: "Be cautious with safety and contracts. Avoid impulsive promises or investments." },
+      { no: 25, level: "中籤", zh_poem: "先苦後甜終有報\n一步一腳印更牢", zh_meaning: "前面辛苦，但後面會甜。撐住就是你的勝利。", en_poem: "Hard first, sweet later you will see.\nStep by step builds victory.", en_meaning: "Difficulties come first, but rewards follow. Keep going steadily." },
+      { no: 26, level: "上籤", zh_poem: "寶劍鋒從磨礪出\n功名富貴在前途", zh_meaning: "你的努力會被看見。適合面試、競爭、展現實力。", en_poem: "A sharp sword comes from grinding stone.\nSuccess appears when you stand alone.", en_meaning: "Your effort will be recognized. Great for interviews and competition." },
+      { no: 27, level: "中籤", zh_poem: "人和事順皆可成\n笑口常開福自生", zh_meaning: "人際運不錯，多微笑、多交流會帶來好機會。", en_poem: "With harmony, things will be done.\nSmile often and you will win.", en_meaning: "Good social luck. Friendly communication brings opportunities." },
+      { no: 28, level: "下籤", zh_poem: "逆水行舟費力多\n暫避鋒芒保安和", zh_meaning: "目前阻力較大，先退一步不代表輸，保留實力最重要。", en_poem: "Rowing upstream takes great strain.\nStep back to avoid needless pain.", en_meaning: "Resistance is strong now. Step back and save energy for better timing." },
+      { no: 29, level: "中上籤", zh_poem: "東風吹來百花開\n舊事消散新運來", zh_meaning: "新的機會出現，適合改變環境、重新開始。", en_poem: "East wind comes, flowers bloom.\nNew luck arrives, removing gloom.", en_meaning: "New opportunities are coming. Great time for change and fresh starts." },
+      { no: 30, level: "上上籤", zh_poem: "喜氣滿堂福滿門\n財來運轉好乾坤", zh_meaning: "大吉。財運旺、人氣旺，適合做生意、開工、聚會。", en_poem: "Joy fills the house, blessings stay.\nFortune turns your world today.", en_meaning: "Excellent luck. Great for business, wealth, and social gatherings." },
+      { no: 31, level: "中籤", zh_poem: "天晴路遠任君行\n勤奮之人得功名", zh_meaning: "只要你肯努力，結果不會差。適合持續推進。", en_poem: "Clear skies guide your road.\nHard workers carry a golden load.", en_meaning: "Keep working steadily. Your outcome will be good." },
+      { no: 32, level: "中下籤", zh_poem: "花未開時莫強求\n守住初心自無憂", zh_meaning: "時機還沒到，不要逼自己或逼別人。放鬆會更順。", en_poem: "Do not force a flower to bloom.\nStay true, avoid the gloom.", en_meaning: "Timing is not ready. Do not force things, relax and wait." },
+      { no: 33, level: "上籤", zh_poem: "一朝得遇明師指\n千里前程不再疑", zh_meaning: "會遇到指導者或貴人，聽建議會讓你少走冤枉路。", en_poem: "A wise guide appears one day.\nYour doubts will fade away.", en_meaning: "A mentor or helper will appear. Follow advice and your path becomes easier." },
+      { no: 34, level: "中籤", zh_poem: "有得有失皆常事\n知足常樂福自至", zh_meaning: "近期得失參半，但整體不差。保持心態最重要。", en_poem: "Gain and loss are part of life.\nStay content, avoid the strife.", en_meaning: "Mixed luck, but stable overall. Mindset matters most." },
+      { no: 35, level: "上籤", zh_poem: "風順帆高行萬里\n福星照耀事皆宜", zh_meaning: "運勢提升，適合旅行、換工作、拓展人脈。", en_poem: "Smooth wind lifts your sail.\nWith lucky star, you will not fail.", en_meaning: "Luck is rising. Great for travel, career change, and networking." },
+      { no: 36, level: "中籤", zh_poem: "一盞明燈照前路\n心中有光不怕苦", zh_meaning: "你會找到方向。只要堅持，困難會慢慢變小。", en_poem: "A small lamp lights your way.\nWith hope inside, you will stay.", en_meaning: "You will find direction. Keep hope and difficulties will fade." },
+      { no: 37, level: "中下籤", zh_poem: "人情冷暖皆須看\n莫把真心付錯端", zh_meaning: "小心看人，不要太快相信承諾。先觀察再決定。", en_poem: "Warm or cold, people may change.\nDo not trust too fast, it feels strange.", en_meaning: "Be careful with trust. Observe first before making commitments." },
+      { no: 38, level: "上籤", zh_poem: "寶船入港財自來\n努力經營福常在", zh_meaning: "財運不錯，但要靠經營。努力越多，收穫越大。", en_poem: "A treasure ship comes to shore.\nWork well and gain much more.", en_meaning: "Good financial luck. The more effort you invest, the more you gain." },
+      { no: 39, level: "下籤", zh_poem: "一時衝動惹麻煩\n退讓一步保平安", zh_meaning: "近期容易吵架或情緒失控。退一步不是輸，是保護自己。", en_poem: "Impulsive acts may bring trouble.\nStep back and avoid the rubble.", en_meaning: "Emotions may cause conflict. Stay calm and step back for safety." },
+      { no: 40, level: "上上籤", zh_poem: "天賜良機莫錯過\n鴻運當頭喜更多", zh_meaning: "大吉。機會突然降臨，記得把握，越主動越好。", en_poem: "Heaven sends a chance so rare.\nGrab it fast, show you care.", en_meaning: "Excellent fortune. A rare opportunity arrives. Act quickly and confidently." },
+      { no: 41, level: "中籤", zh_poem: "路上遇雨不須愁\n雨過天晴景更柔", zh_meaning: "短暫挫折會過去，保持耐心，結果反而更好。", en_poem: "Rain on the road is not the end.\nAfter it clears, the sky will mend.", en_meaning: "Temporary setbacks will pass. Stay patient and results improve." },
+      { no: 42, level: "上籤", zh_poem: "人逢喜事精神爽\n好運來時擋不住", zh_meaning: "近期容易有好事發生，適合聚會、旅行、談合作。", en_poem: "Good news makes your spirit bright.\nWhen luck comes, it feels so right.", en_meaning: "Good things are coming. Great for meetings, travel, and cooperation." },
+      { no: 43, level: "中下籤", zh_poem: "眼前小利莫貪求\n留得清白好自由", zh_meaning: "不要為了小利益做冒險決定。保守一點會比較安全。", en_poem: "Do not chase small gain in haste.\nKeep your honor, do not waste.", en_meaning: "Avoid greedy or risky choices. Staying cautious brings safety." },
+      { no: 44, level: "中籤", zh_poem: "行到水窮仍有路\n轉個彎處見坦途", zh_meaning: "你以為走不下去，其實只是需要轉方向。換方法就好。", en_poem: "When the river ends, a path appears.\nTurn a corner, lose your fears.", en_meaning: "A solution exists. Change direction or strategy and you will progress." },
+      { no: 45, level: "上籤", zh_poem: "春回大地萬象新\n今日所求皆可成", zh_meaning: "適合重新開始，做新的計畫，越快開始越好。", en_poem: "Spring returns, all things renew.\nWhat you seek may come true.", en_meaning: "Perfect for a fresh start. Begin your plan now for best results." },
+      { no: 46, level: "中籤", zh_poem: "平安就是最大福\n知足自然心不苦", zh_meaning: "近期重點在穩定與健康。不要過度操心，先顧好自己。", en_poem: "Peace is the greatest wealth.\nBe content and protect your health.", en_meaning: "Focus on stability and health. Do not overthink, take care of yourself." },
+      { no: 47, level: "上上籤", zh_poem: "福祿雙全添喜氣\n家和人旺萬事宜", zh_meaning: "大吉。家庭、人際、財運都旺。適合辦活動、合作、結交朋友。", en_poem: "Blessings and wealth come as one.\nHarmony brings success for everyone.", en_meaning: "Excellent luck. Great for relationships, family, and social success." },
+      { no: 48, level: "中籤", zh_poem: "一顆善心結善緣\n好運終會回到前", zh_meaning: "多幫助人、多微笑，你的好運會慢慢回來。", en_poem: "A kind heart builds good ties.\nGood luck returns in time and rises.", en_meaning: "Kindness attracts luck. Help others and good things will return." },
+      { no: 49, level: "下籤", zh_poem: "急於求成難如願\n暫時停步保周全", zh_meaning: "最近不適合硬拚。先休息整理，再重新出發。", en_poem: "If you rush, you may fall.\nPause for safety, stand up tall.", en_meaning: "Not the best time to force progress. Rest, reorganize, then continue." },
+      { no: 50, level: "上籤", zh_poem: "船到橋頭自然直\n柳暗花明又見日", zh_meaning: "別擔心太多，事情最後會有解法，結果會比你想像好。", en_poem: "When the boat meets the bridge, it goes straight.\nLight appears after darkness and wait.", en_meaning: "Do not worry too much. Solutions will appear and outcomes will improve." },
+      { no: 51, level: "中上籤", zh_poem: "雖有波折終得安\n守住初心福自還", zh_meaning: "有小阻礙但會過去，只要不放棄，最後會平安成功。", en_poem: "Though twists appear, you will be fine.\nStay true, and luck will align.", en_meaning: "Small challenges may come, but you will overcome them with persistence." },
+      { no: 52, level: "中籤", zh_poem: "燈火闌珊人未散\n前路雖慢仍可盼", zh_meaning: "進度慢沒關係，你正在前進。保持耐心就會到達。", en_poem: "Lights are dim, yet people stay.\nSlow progress still leads the way.", en_meaning: "Even if progress is slow, you are moving forward. Keep going patiently." },
+      { no: 53, level: "中下籤", zh_poem: "舊事未清新事難\n先理舊帳再向前", zh_meaning: "先把未完成的事情處理好，新的計畫才會順利。", en_poem: "If old matters remain undone,\nNew plans may not smoothly run.", en_meaning: "Finish old tasks first. Then new opportunities will flow more easily." },
+      { no: 54, level: "上籤", zh_poem: "良緣天定終相遇\n真心相待得幸福", zh_meaning: "感情運不錯，適合交朋友、告白、修復關係。", en_poem: "True bonds will meet in time.\nWith honest heart, love will climb.", en_meaning: "Good relationship luck. Great for making friends, romance, and healing bonds." },
+      { no: 55, level: "中籤", zh_poem: "財如流水來又去\n守得住才是真福", zh_meaning: "有進財機會，但也容易花掉。記得理財與節制。", en_poem: "Money flows like moving streams.\nSaving well fulfills your dreams.", en_meaning: "Income may come, but spending may rise too. Manage your money wisely." },
+      { no: 56, level: "上籤", zh_poem: "努力之人天不負\n好運終會在前途", zh_meaning: "持續努力就會被看見，適合追求升遷、學業、證照。", en_poem: "Heaven rewards the ones who try.\nGood fortune waits as time goes by.", en_meaning: "Hard work will be rewarded. Great for study, promotion, and certifications." },
+      { no: 57, level: "中籤", zh_poem: "心若不亂路自明\n平穩踏實最要緊", zh_meaning: "最近要穩住心態，別被外界影響，做好自己最重要。", en_poem: "If your heart is calm, your road is clear.\nSteady steps bring success near.", en_meaning: "Keep your mind calm. Do not be distracted. Stability leads to success." },
+      { no: 58, level: "中下籤", zh_poem: "天有風雲難預測\n凡事留心免差錯", zh_meaning: "最近變數較多，做事要多準備備案，避免大意。", en_poem: "The sky may change without a sign.\nBe prepared, and you will be fine.", en_meaning: "Uncertainty is higher now. Prepare a backup plan and avoid careless mistakes." },
+      { no: 59, level: "上上籤", zh_poem: "福到人間喜氣濃\n萬事如意步步通", zh_meaning: "大吉。運勢超旺，做什麼都順。適合許願、抽獎、旅行、告白。", en_poem: "Blessings arrive with joyful cheer.\nEverything goes well this year.", en_meaning: "Excellent fortune. Great for wishes, travel, love, and big opportunities." },
+      { no: 60, level: "上籤", zh_poem: "一帆風順行千里\n平安喜樂在心底", zh_meaning: "整體運勢順，適合出國、遠行、搬家、拓展新生活。", en_poem: "Smooth sailing for miles and more.\nPeace and joy come to your core.", en_meaning: "Good overall luck. Great for travel, moving, and starting a new life chapter." }
+    ];
 
     let remaining = [...fortunes];
     let lastResult = null;
@@ -966,6 +627,7 @@ const fortunes = [
     const fortuneNumber = document.getElementById("fortuneNumber");
     const fortunePoem = document.getElementById("fortunePoem");
     const fortuneMeaning = document.getElementById("fortuneMeaning");
+    const fortuneTube = document.getElementById("fortuneTube");
 
     function renderFortune(f){
       lastResult = f;
@@ -982,47 +644,6 @@ const fortunes = [
       }
     }
 
-    function drawFortune(){
-      if(remaining.length === 0){
-        alert("籤筒已抽完，請按「重置籤筒」重新開始。");
-        return;
-      }
-
-fortuneBox.classList.remove("shake");
-void fortuneBox.offsetWidth;
-fortuneBox.classList.add("shake");
-
-// 播放搖籤聲
-playShakeSound();
-
-// 掉籤動畫
-const stick = document.getElementById("stickDrop");
-stick.classList.remove("hidden");
-stick.classList.remove("drop-anim");
-void stick.offsetWidth;
-stick.classList.add("drop-anim");
-
-// 掉籤聲（延遲一點比較像真的）
-setTimeout(() => {
-  playDropSound();
-}, 180);
-
-// 動畫結束後隱藏籤紙
-setTimeout(() => {
-  stick.classList.add("hidden");
-  stick.classList.remove("drop-anim");
-}, 800);
-
-
-      const idx = Math.floor(Math.random() * remaining.length);
-      const picked = remaining[idx];
-      remaining.splice(idx, 1);
-
-      setTimeout(() => {
-        renderFortune(picked);
-      }, 250);
-    }
-
     function resetFortune(){
       remaining = [...fortunes];
       lastResult = null;
@@ -1031,6 +652,59 @@ setTimeout(() => {
       fortuneNumber.textContent = "---";
       fortunePoem.textContent = "請按「抽籤」開始";
       fortuneMeaning.textContent = "抽到籤後會顯示白話解釋與英文版內容";
+    }
+
+    function drawFortune(){
+      if(remaining.length === 0){
+        alert("籤筒已抽完，請按「重置籤筒」重新開始。");
+        return;
+      }
+
+      // 震動效果（手機）
+      if(navigator.vibrate){
+        navigator.vibrate([80, 40, 80]);
+      }
+
+      // 籤筒搖晃動畫
+      fortuneTube.classList.remove("tube-shake");
+      void fortuneTube.offsetWidth;
+      fortuneTube.classList.add("tube-shake");
+
+      // 卡片搖晃動畫
+      fortuneBox.classList.remove("shake");
+      void fortuneBox.offsetWidth;
+      fortuneBox.classList.add("shake");
+
+      // 播放搖籤聲
+      playShakeSound();
+
+      // 掉籤動畫
+      const stick = document.getElementById("stickDrop");
+      stick.classList.remove("hidden");
+      stick.classList.remove("drop-anim");
+      void stick.offsetWidth;
+      stick.classList.add("drop-anim");
+
+      // 掉籤聲（延遲）
+      setTimeout(() => {
+        playDropSound();
+      }, 180);
+
+      // 抽籤邏輯
+      const idx = Math.floor(Math.random() * remaining.length);
+      const picked = remaining[idx];
+      remaining.splice(idx, 1);
+
+      // 等動畫跑一下再顯示結果，才像真的抽籤
+      setTimeout(() => {
+        renderFortune(picked);
+      }, 320);
+
+      // 動畫結束後隱藏籤紙
+      setTimeout(() => {
+        stick.classList.add("hidden");
+        stick.classList.remove("drop-anim");
+      }, 850);
     }
 
     document.getElementById("drawBtn").addEventListener("click", drawFortune);
