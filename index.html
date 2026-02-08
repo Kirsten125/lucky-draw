@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>新年運勢抽籤</title>
 
-
   <style>
     :root{
       --bg1:#0b0b0f;
@@ -176,12 +175,6 @@
       background: rgba(197,48,48,0.2);
       color: #ffb3b3;
       border: 1px solid rgba(197,48,48,0.35);
-    }
-
-    .btn-install{
-      background: rgba(246,210,123,0.12);
-      color: var(--gold);
-      border: 1px solid rgba(246,210,123,0.25);
     }
 
     /* =========================
@@ -571,10 +564,7 @@
       </div>
 
       <div class="fortune-box" id="fortuneBox">
-
-        <!-- 掉籤動畫用的籤紙 -->
         <div id="stickDrop" class="stick-drop hidden"></div>
-
         <div class="seal"></div>
 
         <div class="fortune-title">
@@ -607,9 +597,6 @@
 <script>
   let currentLang = "zh";
 
-  // =========================
-  // UI 中英文字典
-  // =========================
   const uiText = {
     zh: {
       title: "新年運勢抽籤",
@@ -618,8 +605,15 @@
       resetBtn: "重置籤筒",
       tubeLabel: "籤筒",
       copyBtn: "📋 複製籤詩",
-      shareBtn: "📲 分享",
-      noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。"
+      shareBtn: "🖼️ 分享圖片",
+      noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。",
+      footer: "Happy Lunar New Year",
+      ritualTitle: "抽籤前祈願",
+      ritualText: "請在心中默念你的願望\n深呼吸三次\n準備好後按「開始抽籤」",
+      ritualStartBtn: "開始抽籤",
+      ritualCancelBtn: "取消",
+      progressText: "抽籤中...",
+      progressSub: "請稍候"
     },
     en: {
       title: "Lucky Draw",
@@ -628,8 +622,15 @@
       resetBtn: "Reset Tube",
       tubeLabel: "Fortune Tube",
       copyBtn: "📋 Copy Fortune",
-      shareBtn: "📲 Share",
-      noteText: "Note: Fortune text is for reference only. Please do not be overly superstitious."
+      shareBtn: "🖼️ Share Image",
+      noteText: "Note: Fortune text is for reference only. Please do not be overly superstitious.",
+      footer: "Happy Lunar New Year",
+      ritualTitle: "Before Drawing",
+      ritualText: "Make a wish in your heart.\nTake 3 deep breaths.\nThen press \"Start\".",
+      ritualStartBtn: "Start",
+      ritualCancelBtn: "Cancel",
+      progressText: "Drawing...",
+      progressSub: "Please wait"
     }
   };
 
@@ -639,53 +640,62 @@
       copied: "已複製到剪貼簿！",
       resetConfirm: "確定要重置籤筒嗎？所有籤會重新洗牌。",
       emptyTube: "籤筒已抽完，請按「重置籤筒」重新開始。",
-      unsupportedShare: "你的裝置不支援分享功能，已複製網址！",
       defaultTag: "尚未抽籤",
       defaultPoem: "請按「抽籤」開始",
-      defaultMeaning: "抽到籤後會顯示六十甲子籤原文。"
+      defaultMeaning: "抽到籤後會顯示六十甲子籤原文與白話解釋。"
     },
     en: {
       noResult: "Please draw a fortune first.",
       copied: "Copied to clipboard!",
       resetConfirm: "Reset the tube? All fortunes will be shuffled again.",
       emptyTube: "All fortunes are drawn. Please press Reset Tube.",
-      unsupportedShare: "Sharing is not supported on this device. URL copied.",
       defaultTag: "Not drawn yet",
       defaultPoem: 'Press "Lucky Draw" to start',
-      defaultMeaning: "After drawing, the original Sixty Jiazi fortune verse will be shown."
+      defaultMeaning: "After drawing, the Sixty Jiazi fortune verse and explanation will be shown."
     }
   };
 
-  function tMsg(key) {
+  function tMsg(key){
     return msg[currentLang][key];
   }
 
-  function applyLanguageUI() {
+  function applyLanguageUI(){
     const t = uiText[currentLang];
+
     document.getElementById("mainTitle").textContent = t.title;
     document.getElementById("subtitleText").textContent = t.subtitle;
+
     document.getElementById("drawBtn").textContent = t.drawBtn;
     document.getElementById("resetBtn").textContent = t.resetBtn;
+    document.getElementById("tubeLabel").textContent = t.tubeLabel;
+
     document.getElementById("copyBtn").textContent = t.copyBtn;
     document.getElementById("shareBtn").textContent = t.shareBtn;
-    document.getElementById("tubeLabel").textContent = t.tubeLabel;
     document.getElementById("noteText").textContent = t.noteText;
+    document.getElementById("footerText").textContent = t.footer;
+
+    document.getElementById("ritualTitle").textContent = t.ritualTitle;
+    document.getElementById("ritualText").textContent = t.ritualText;
+    document.getElementById("ritualStartBtn").textContent = t.ritualStartBtn;
+    document.getElementById("ritualCancelBtn").textContent = t.ritualCancelBtn;
+
+    document.getElementById("progressText").textContent = t.progressText;
+    document.getElementById("progressSub").textContent = t.progressSub;
   }
 
   // =========================
-  // 抽籤音效（Web Audio API）
+  // 音效
   // =========================
   let audioCtx = null;
 
-  function initAudio() {
-    if (!audioCtx) {
+  function initAudio(){
+    if(!audioCtx){
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
   }
 
-  function playShakeSound() {
+  function playShakeSound(){
     initAudio();
-
     const now = audioCtx.currentTime;
     const duration = 0.45;
 
@@ -693,7 +703,7 @@
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
 
-    for (let i = 0; i < bufferSize; i++) {
+    for(let i=0; i<bufferSize; i++){
       data[i] = (Math.random() * 2 - 1) * 0.25;
     }
 
@@ -717,9 +727,8 @@
     noise.stop(now + duration);
   }
 
-  function playDropSound() {
+  function playDropSound(){
     initAudio();
-
     const now = audioCtx.currentTime;
 
     const osc = audioCtx.createOscillator();
@@ -739,316 +748,318 @@
     osc.stop(now + 0.25);
   }
 
-const fortunes = [
+  // =========================
+  // 六十甲子籤
+  // =========================
+  const fortunes = [
   { no: 1, ganzhi: "甲子",
     zh_poem: `日出便見風雲散，\n光明清淨照世間，\n一向前途通大道，\n萬事清吉保平安。`,
-    zh_meaning: "大吉。事情會越來越順，困難消散，適合開始新計畫，求職，談合作。",
+    zh_meaning: "大吉。\n事情會越來越順，困難消散，適合開始新計畫，求職，談合作。",
     en_meaning: "Excellent luck. Problems fade away and things become smoother. Great time to start new plans."
   },
   { no: 2, ganzhi: "甲寅",
     zh_poem: `於今此景正當時，\n看看欲吐百花魁，\n若能遇得春色到，\n一洒清吉脫塵埃。`,
-    zh_meaning: "吉。運勢正在回升，像春天要來了，適合等待好時機再衝刺。",
+    zh_meaning: "吉。\n運勢正在回升，像春天要來了，適合等待好時機再衝刺。",
     en_meaning: "Good luck. Your fortune is rising like spring arriving. Wait for the right timing and act."
   },
   { no: 3, ganzhi: "甲辰",
     zh_poem: `勸君把定心莫虛，\n天註衣祿自有餘，\n和合重重常吉慶，\n時來終遇得明珠。`,
-    zh_meaning: "吉。不要慌，該有的資源會來。人際與合作順，最後會有好結果。",
+    zh_meaning: "吉。\n不要慌，該有的資源會來。人際與合作順，最後會有好結果。",
     en_meaning: "Good luck. Stay calm. Support and resources will come. Cooperation brings success."
   },
   { no: 4, ganzhi: "甲午",
     zh_poem: `風恬浪靜可行舟，\n恰是中秋月一輪，\n凡事不須多憂慮，\n福祿自有慶家門。`,
-    zh_meaning: "大吉。局勢穩定，適合推進計畫，搬家，旅行，求財，順順走就成功。",
+    zh_meaning: "大吉。\n局勢穩定，適合推進計畫，搬家，旅行，求財，順順走就成功。",
     en_meaning: "Excellent luck. Everything is stable. Great for progress, travel, and important actions."
   },
   { no: 5, ganzhi: "甲申",
     zh_poem: `只恐前途命有變，\n勸君作急可宜先，\n且守長江無大事，\n命逢太白守身邊。`,
-    zh_meaning: "中吉。可能有突發變動，建議先做好準備與備案，保守行事比較安全。",
+    zh_meaning: "中吉。\n可能有突發變動，建議先做好準備與備案，保守行事比較安全。",
     en_meaning: "Average to good. Changes may happen. Prepare backup plans and act cautiously."
   },
   { no: 6, ganzhi: "甲戌",
     zh_poem: `風雲致雨落洋洋，\n天災時氣必有傷，\n命內此事難和合，\n更逢一足出外鄉。`,
-    zh_meaning: "下籤。近期阻力大，容易有麻煩或爭執，不適合冒險投資，外出需注意安全。",
+    zh_meaning: "下籤。\n近期阻力大，容易有麻煩或爭執，不適合冒險投資，外出需注意安全。",
     en_meaning: "Bad luck. Obstacles and conflicts may arise. Avoid risky decisions and be careful when traveling."
   },
   { no: 7, ganzhi: "乙丑",
     zh_poem: `雲開月出正分明，\n不須進退問前程，\n婚姻皆由天註定，\n和合清吉萬事成。`,
-    zh_meaning: "大吉。事情會越來越明朗，感情與合作很順，適合談婚姻，合作，簽約。",
+    zh_meaning: "大吉。\n事情會越來越明朗，感情與合作很順，適合談婚姻，合作，簽約。",
     en_meaning: "Excellent luck. Things become clear. Great for relationships, agreements, and cooperation."
   },
   { no: 8, ganzhi: "乙卯",
     zh_poem: `禾稻看看結成完，\n此事必定兩相全，\n回到家中寬心坐，\n妻兒鼓舞樂團圓。`,
-    zh_meaning: "吉。努力會有收成，家庭運旺，適合回歸穩定，累積成果。",
+    zh_meaning: "吉。\n努力會有收成，家庭運旺，適合回歸穩定，累積成果。",
     en_meaning: "Good luck. Your effort will pay off. Family and stability bring happiness."
   },
   { no: 9, ganzhi: "乙巳",
     zh_poem: `龍虎相隨在深山，\n君爾何須背後看，\n不知此去相愛愉，\n他日與我卻無干。`,
-    zh_meaning: "中籤。不要一直回頭想過去，專注眼前。感情或人際會有變化，順其自然。",
+    zh_meaning: "中籤。\n不要一直回頭想過去，專注眼前。感情或人際會有變化，順其自然。",
     en_meaning: "Average luck. Stop looking back. Focus on the present. Relationships may change naturally."
   },
   { no: 10, ganzhi: "乙未",
     zh_poem: `花開結子一半枯，\n可惜今年汝虛度，\n漸漸日落西山去，\n勸君不用向前途。`,
-    zh_meaning: "下籤。努力可能得不到理想回報，暫時不適合硬拚，先休息整理再出發。",
+    zh_meaning: "下籤。\n努力可能得不到理想回報，暫時不適合硬拚，先休息整理再出發。",
     en_meaning: "Bad luck. Effort may not bring expected results. Pause, recover, and plan again."
   },
   { no: 11, ganzhi: "乙酉",
     zh_poem: `靈雞漸漸見分明，\n凡事且看子丑寅，\n雲開月出照天下，\n郎君即便見太平。`,
-    zh_meaning: "中上籤。再等等，事情會變清楚，過一段時間就會轉好。",
+    zh_meaning: "中上籤。\n再等等，事情會變清楚，過一段時間就會轉好。",
     en_meaning: "Above average. Be patient. Things will become clear soon and improve."
   },
   { no: 12, ganzhi: "乙亥",
     zh_poem: `長江風浪漸漸靜，\n于今得進可安寧，\n必有貴人相扶助，\n凶事脫出見太平。`,
-    zh_meaning: "上籤。困難逐漸消失，有貴人幫忙，適合重新推進卡住的事情。",
+    zh_meaning: "上籤。\n困難逐漸消失，有貴人幫忙，適合重新推進卡住的事情。",
     en_meaning: "Good luck. Problems fade and helpful people appear. Great for restarting stalled plans."
   },
   { no: 13, ganzhi: "丙子",
     zh_poem: `命中正逢羅孛關，\n用盡心機總未休，\n作福問神難得過，\n恰是行舟上高灘。`,
-    zh_meaning: "下籤。阻礙很大，越急越卡，建議先停下來，不要硬闖，避免法律或合約糾紛。",
+    zh_meaning: "下籤。\n阻礙很大，越急越卡，建議先停下來，不要硬闖，避免法律或合約糾紛。",
     en_meaning: "Bad luck. Strong obstacles. Do not force progress. Avoid legal or contract issues."
   },
   { no: 14, ganzhi: "丙寅",
     zh_poem: `財中漸漸見分明，\n花開花謝結子成，\n寬心且看月中桂，\n郎君即便見太平。`,
-    zh_meaning: "中上籤。財運逐漸清楚，先有波動後有成果，保持耐心就會收穫。",
+    zh_meaning: "中上籤。\n財運逐漸清楚，先有波動後有成果，保持耐心就會收穫。",
     en_meaning: "Above average. Finances improve gradually. Be patient and results will come."
   },
   { no: 15, ganzhi: "丙辰",
     zh_poem: `八十原來是太公，\n看看晚景遇文王，\n目下緊事休相問，\n勸君且守待運通。`,
-    zh_meaning: "中籤。屬於大器晚成型，現在不要急，先累積實力，時機到就會大翻身。",
+    zh_meaning: "中籤。\n屬於大器晚成型，現在不要急，先累積實力，時機到就會大翻身。",
     en_meaning: "Average luck. Late success. Build skills now, big opportunities will come later."
   },
   { no: 16, ganzhi: "丙午",
     zh_poem: `不須作福不須求，\n用盡心機總未休，\n陽世不知陰世事，\n官法如爐不自由。`,
-    zh_meaning: "下籤。事情受限制，容易卡在規則，制度，法律流程，暫時不適合強推。",
+    zh_meaning: "下籤。\n事情受限制，容易卡在規則，制度，法律流程，暫時不適合強推。",
     en_meaning: "Bad luck. Restrictions and rules block progress. Avoid forcing things right now."
   },
   { no: 17, ganzhi: "丙申",
     zh_poem: `舊恨重重未改為，\n家中禍患不臨身，\n須當謹防宜作福，\n龍蛇交會得和合。`,
-    zh_meaning: "中籤。過去問題未解決，小心舊事重演。保持低調，多做善事可化解。",
+    zh_meaning: "中籤。\n過去問題未解決，小心舊事重演。保持低調，多做善事可化解。",
     en_meaning: "Average luck. Old issues may return. Stay cautious and keep a positive attitude."
   },
   { no: 18, ganzhi: "丙戌",
     zh_poem: `君問中間此言因，\n看看祿馬拱前程，\n若得貴人多得利，\n和合自有兩分明。`,
-    zh_meaning: "上籤。有升遷與發展機會，貴人很重要，找對人合作會順利。",
+    zh_meaning: "上籤。\n有升遷與發展機會，貴人很重要，找對人合作會順利。",
     en_meaning: "Good luck. Career growth is possible. A helpful person will improve your success."
   },
   { no: 19, ganzhi: "丁丑",
     zh_poem: `富貴由命天註定，\n心高必然誤君期，\n不然且回依舊路，\n雲開月出自分明。`,
-    zh_meaning: "中下籤。不要太貪心或好高騖遠，回到穩健路線會比較順。",
+    zh_meaning: "中下籤。\n不要太貪心或好高騖遠，回到穩健路線會比較順。",
     en_meaning: "Below average. Avoid unrealistic ambition. A stable path brings better results."
   },
   { no: 20, ganzhi: "丁卯",
     zh_poem: `前途功名未得意，\n只恐命內有交加，\n兩家必定防損失，\n勸君且退莫咨嗟。`,
-    zh_meaning: "下籤。合作或金錢可能有損失，建議先退一步，避免衝動決定。",
+    zh_meaning: "下籤。\n合作或金錢可能有損失，建議先退一步，避免衝動決定。",
     en_meaning: "Bad luck. Partnerships may cause losses. Step back and avoid impulsive choices."
   },
   { no: 21, ganzhi: "丁巳",
     zh_poem: `十方佛法有靈通，\n大難禍患不相同，\n紅日當空常照耀，\n還有貴人到家堂。`,
-    zh_meaning: "上籤。有貴人相助，困難能化解。適合求助，求職，談條件。",
+    zh_meaning: "上籤。\n有貴人相助，困難能化解。適合求助，求職，談條件。",
     en_meaning: "Good luck. Help arrives and problems can be solved. Great for seeking support."
   },
   { no: 22, ganzhi: "丁未",
     zh_poem: `太公家業八十成，\n月出光輝四海明，\n命內自然逢大吉，\n茅屋中間百事亨。`,
-    zh_meaning: "上上籤。運勢大開，晚運更旺。家庭，事業，財運都能順利提升。",
+    zh_meaning: "上上籤。\n運勢大開，晚運更旺。家庭，事業，財運都能順利提升。",
     en_meaning: "Excellent luck. Great fortune grows stronger over time. Success in career and family."
   },
   { no: 23, ganzhi: "丁酉",
     zh_poem: `欲去長江水闊茫，\n前途未遂運未通，\n如今絲綸常在手，\n只恐魚水不相逢。`,
-    zh_meaning: "中下籤。你有能力但機會未到，先準備好，等時機成熟再出手。",
+    zh_meaning: "中下籤。\n你有能力但機會未到，先準備好，等時機成熟再出手。",
     en_meaning: "Below average. You have skills but timing is not ready. Prepare and wait for opportunity."
   },
   { no: 24, ganzhi: "丁亥",
     zh_poem: `月出光輝四海明，\n前途祿位見太平，\n浮雲掃退終無事，\n可保禍患不臨身。`,
-    zh_meaning: "上籤。事情會越來越明朗，壞運散去，工作與名聲會進步。",
+    zh_meaning: "上籤。\n事情會越來越明朗，壞運散去，工作與名聲會進步。",
     en_meaning: "Good luck. Clouds clear away. Career and reputation improve, troubles fade."
   },
   { no: 25, ganzhi: "戊子",
     zh_poem: `總是前途莫心勞，\n求神問聖枉是多，\n但看雞犬日過後，\n不須作福事如何。`,
-    zh_meaning: "中籤。不要想太多，事情會自然轉好，耐心等待比亂求更有效。",
+    zh_meaning: "中籤。\n不要想太多，事情會自然轉好，耐心等待比亂求更有效。",
     en_meaning: "Average luck. Do not overthink. Things will improve naturally with patience."
   },
   { no: 26, ganzhi: "戊寅",
     zh_poem: `選出牡丹第一枝，\n勸君折取莫遲疑，\n世間若問相知處，\n萬事逢春正及時。`,
-    zh_meaning: "上上籤。機會來了要立刻把握，適合告白，面試，談合作，投資。",
+    zh_meaning: "上上籤。\n機會來了要立刻把握，適合告白，面試，談合作，投資。",
     en_meaning: "Excellent luck. A great opportunity is here. Act quickly for love, work, and deals."
   },
   { no: 27, ganzhi: "戊辰",
     zh_poem: `君爾寬心且自由，\n門庭清吉家無憂，\n財寶自然終吉利，\n凡事無傷不用求。`,
-    zh_meaning: "中上籤。家運平安，財運穩定，事情不用太操心，順勢即可。",
+    zh_meaning: "中上籤。\n家運平安，財運穩定，事情不用太操心，順勢即可。",
     en_meaning: "Above average. Family and finances are stable. Relax and go with the flow."
   },
   { no: 28, ganzhi: "戊午",
     zh_poem: `於今莫作此當時，\n虎落平陽被犬欺，\n世間凡事何難定，\n千山萬水也遲疑。`,
-    zh_meaning: "下籤。運勢低迷，容易被壓制或吃虧，暫時不要硬碰硬，先保守。",
+    zh_meaning: "下籤。\n運勢低迷，容易被壓制或吃虧，暫時不要硬碰硬，先保守。",
     en_meaning: "Bad luck. You may feel suppressed or disadvantaged. Avoid confrontation and stay cautious."
   },
   { no: 29, ganzhi: "戊申",
     zh_poem: `枯木可惜未逢春，\n如今反在暗中藏，\n寬心且守風霜退，\n還君依舊作乾坤。`,
-    zh_meaning: "中籤。現在還沒輪到你發光，但只要撐住，時機一到就會翻身。",
+    zh_meaning: "中籤。\n現在還沒輪到你發光，但只要撐住，時機一到就會翻身。",
     en_meaning: "Average luck. Your time has not arrived yet, but patience will bring a turnaround."
   },
   { no: 30, ganzhi: "戊戌",
     zh_poem: `漸漸看此月中和，\n過後須防未得高，\n改變顏色前途去，\n凡事必定見重勞。`,
-    zh_meaning: "中下籤。前面還行，但後面可能有波折，建議保守行事，不要太冒險。",
+    zh_meaning: "中下籤。\n前面還行，但後面可能有波折，建議保守行事，不要太冒險。",
     en_meaning: "Below average. Things may change later. Stay cautious and avoid risky actions."
   },
   { no: 31, ganzhi: "己丑",
     zh_poem: `綠柳蒼蒼正當時，\n任君此去作乾坤，\n花果結實無殘謝，\n福祿自有慶家門。`,
-    zh_meaning: "上上籤。運勢旺盛，做事容易成功，努力會有成果，財運人際都提升。",
+    zh_meaning: "上上籤。\n運勢旺盛，做事容易成功，努力會有成果，財運人際都提升。",
     en_meaning: "Excellent luck. Strong momentum. Efforts will produce great results and prosperity."
   },
   { no: 32, ganzhi: "己卯",
     zh_poem: `龍虎相交在門前，\n此事必定兩相連，\n黃金忽然變成鐵，\n何用作福問神仙。`,
-    zh_meaning: "下籤。表面看起來很好，可能突然變差，合作或投資需非常謹慎。",
+    zh_meaning: "下籤。\n表面看起來很好，可能突然變差，合作或投資需非常謹慎。",
     en_meaning: "Bad luck. Things may suddenly turn worse. Be careful with money and partnerships."
   },
   { no: 33, ganzhi: "己巳",
     zh_poem: `欲去長江水闊茫，\n行舟把定未遭風，\n戶內用心再作福，\n看看魚水得相逢。`,
-    zh_meaning: "中上籤。只要方向穩，就能安全前進，家運穩定，等待好消息。",
+    zh_meaning: "中上籤。\n只要方向穩，就能安全前進，家運穩定，等待好消息。",
     en_meaning: "Above average. Keep your direction steady. Progress is safe and good news will come."
   },
   { no: 34, ganzhi: "己未",
     zh_poem: `危險高山行過盡，\n莫嫌此路有重重，\n若見蘭桂漸漸發，\n長蛇反轉變成龍。`,
-    zh_meaning: "上籤。辛苦快結束了，越走越順，會有突破與升級的好運。",
+    zh_meaning: "上籤。\n辛苦快結束了，越走越順，會有突破與升級的好運。",
     en_meaning: "Good luck. Hard times are ending. A breakthrough is coming and fortune rises."
   },
   { no: 35, ganzhi: "己酉",
     zh_poem: `此事何須用心機，\n前途變怪自然知，\n看看此去得和合，\n漸漸脫出見太平。`,
-    zh_meaning: "中上籤。不必算計太多，順其自然反而更好，最後會和平解決。",
+    zh_meaning: "中上籤。\n不必算計太多，順其自然反而更好，最後會和平解決。",
     en_meaning: "Above average. Do not over-plan. Things will resolve naturally and become peaceful."
   },
   { no: 36, ganzhi: "己亥",
     zh_poem: `福如東海壽如山，\n君爾何須嘆苦難，\n命內自然逢大吉，\n祈保分明自平安。`,
-    zh_meaning: "上上籤。福氣很旺，身心平安，家運與健康都不錯，適合求穩求福。",
+    zh_meaning: "上上籤。\n福氣很旺，身心平安，家運與健康都不錯，適合求穩求福。",
     en_meaning: "Excellent luck. Strong blessings and peace. Great for stability, health, and family."
   },
   { no: 37, ganzhi: "庚子",
     zh_poem: `運逢得意身顯變，\n君爾身中皆有益，\n一向前途無難事，\n決意之中保清吉。`,
-    zh_meaning: "上籤。運勢上升，做事有利，適合做決定與推進目標。",
+    zh_meaning: "上籤。\n運勢上升，做事有利，適合做決定與推進目標。",
     en_meaning: "Good luck. Fortune improves. Great time to decide and take action."
   },
   { no: 38, ganzhi: "庚寅",
     zh_poem: `名顯有意在中央，\n不須祈禱心自安，\n看看早晚日過後，\n即時得意在其間。`,
-    zh_meaning: "中上籤。名聲與成就會慢慢出現，別焦慮，近期會看到成果。",
+    zh_meaning: "中上籤。\n名聲與成就會慢慢出現，別焦慮，近期會看到成果。",
     en_meaning: "Above average. Recognition comes soon. Stay calm and results will appear."
   },
   { no: 39, ganzhi: "庚辰",
     zh_poem: `意中若問神仙路，\n勸爾且退望高樓，\n寬心且守寬心坐，\n必然遇得貴人扶。`,
-    zh_meaning: "中籤。不要急著往前衝，先退一步觀察，貴人會出現幫你。",
+    zh_meaning: "中籤。\n不要急著往前衝，先退一步觀察，貴人會出現幫你。",
     en_meaning: "Average luck. Step back and observe. A helpful person will support you."
   },
   { no: 40, ganzhi: "庚午",
     zh_poem: `平生富貴成祿位，\n君家門戶定光輝，\n此中必定無損失，\n夫妻百歲喜相隨。`,
-    zh_meaning: "上上籤。家庭與事業運佳，感情穩定，適合結婚，買房，長期規劃。",
+    zh_meaning: "上上籤。\n家庭與事業運佳，感情穩定，適合結婚，買房，長期規劃。",
     en_meaning: "Excellent luck. Strong family and career fortune. Great for marriage and long-term plans."
   },
   { no: 41, ganzhi: "庚申",
     zh_poem: `今行到此實難推，\n歌歌暢飲自徘徊，\n雞犬相聞消息近，\n婚姻夙世結成雙。`,
-    zh_meaning: "中籤。現在可能卡住或猶豫，但好消息快來了，感情與人際有好緣分。",
+    zh_meaning: "中籤。\n現在可能卡住或猶豫，但好消息快來了，感情與人際有好緣分。",
     en_meaning: "Average luck. You may hesitate now, but good news is near. Relationships improve."
   },
   { no: 42, ganzhi: "庚戌",
     zh_poem: `一重江水一重山，\n誰知此去路又難，\n任他改求終不過，\n是非終久未得安。`,
-    zh_meaning: "下籤。阻礙一關接一關，是非多，建議不要強求，遠離爭執。",
+    zh_meaning: "下籤。\n阻礙一關接一關，是非多，建議不要強求，遠離爭執。",
     en_meaning: "Bad luck. Many obstacles and conflicts. Avoid arguments and do not force progress."
   },
   { no: 43, ganzhi: "辛丑",
     zh_poem: `一年作事急如飛，\n君爾寬心莫遲疑，\n貴人還在千里外，\n音信月中漸漸知。`,
-    zh_meaning: "中上籤。事情進展很快，不要拖延。貴人雖遠但會帶來消息與機會。",
+    zh_meaning: "中上籤。\n事情進展很快，不要拖延。貴人雖遠但會帶來消息與機會。",
     en_meaning: "Above average. Things move quickly. Do not delay. Help comes from afar."
   },
   { no: 44, ganzhi: "辛卯",
     zh_poem: `客到前途多得利，\n君爾何故兩相疑，\n雖是中間逢進退，\n月出光輝得運時。`,
-    zh_meaning: "上籤。外來的人或資訊會帶來好處，中途會有小波折，但最後能順利。",
+    zh_meaning: "上籤。\n外來的人或資訊會帶來好處，中途會有小波折，但最後能順利。",
     en_meaning: "Good luck. Visitors or outside opportunities bring benefits. Small ups and downs, but success follows."
   },
   { no: 45, ganzhi: "辛巳",
     zh_poem: `花開今已結成果，\n富貴榮華終到老，\n君子小人相會合，\n萬事清吉莫煩惱。`,
-    zh_meaning: "上上籤。成果已經成形，財運與事業穩定，遇到小人也不用怕，能化解。",
+    zh_meaning: "上上籤。\n成果已經成形，財運與事業穩定，遇到小人也不用怕，能化解。",
     en_meaning: "Excellent luck. Success is forming. Wealth and stability grow. Problems can be resolved."
   },
   { no: 46, ganzhi: "辛未",
     zh_poem: `功名得意與君顯，\n前途富貴喜安然，\n若遇一輪明月照，\n十五團圓光滿天。`,
-    zh_meaning: "上上籤。事業名聲提升，財運佳，家庭圓滿，是非常好的籤。",
+    zh_meaning: "上上籤。\n事業名聲提升，財運佳，家庭圓滿，是非常好的籤。",
     en_meaning: "Excellent luck. Career and reputation rise. Wealth and family happiness increase."
   },
   { no: 47, ganzhi: "辛酉",
     zh_poem: `君爾何須問聖跡，\n自己心中皆有益，\n於今且看月中旬，\n凶事脫出化成吉。`,
-    zh_meaning: "中上籤。別擔心，事情會由凶轉吉，尤其過一段時間後更明顯。",
+    zh_meaning: "中上籤。\n別擔心，事情會由凶轉吉，尤其過一段時間後更明顯。",
     en_meaning: "Above average. Bad luck turns into good. Improvement becomes clearer soon."
   },
   { no: 48, ganzhi: "辛亥",
     zh_poem: `陽世作事未和同，\n雲遮月色正朦朧，\n心中意欲前途去，\n只恐命內運未通。`,
-    zh_meaning: "中下籤。事情不明朗，人際不協調，現在不適合做大決定，先觀察。",
+    zh_meaning: "中下籤。\n事情不明朗，人際不協調，現在不適合做大決定，先觀察。",
     en_meaning: "Below average. Things are unclear and cooperation is difficult. Wait before major decisions."
   },
   { no: 49, ganzhi: "壬子",
     zh_poem: `言語雖多不可從，\n風雲靜處未行龍，\n暗中終得明消息，\n君爾何須問重重。`,
-    zh_meaning: "中籤。不要聽太多流言，靜待時機，最後會得到真實消息與轉機。",
+    zh_meaning: "中籤。\n不要聽太多流言，靜待時機，最後會得到真實消息與轉機。",
     en_meaning: "Average luck. Ignore rumors. Wait quietly and clear information will come."
   },
   { no: 50, ganzhi: "壬寅",
     zh_poem: `佛前發誓無異心，\n且看前途得好音，\n此物原來本是鐵，\n也能變化得成金。`,
-    zh_meaning: "上籤。堅持初心就會有好結果，壞事能變好事，努力會轉成收穫。",
+    zh_meaning: "上籤。\n堅持初心就會有好結果，壞事能變好事，努力會轉成收穫。",
     en_meaning: "Good luck. Stay true to your goals. Difficulties can transform into success."
   },
   { no: 51, ganzhi: "壬辰",
     zh_poem: `東西南北不堪行，\n前途此事正可當，\n勸君把定莫煩惱，\n家門自有保安康。`,
-    zh_meaning: "中下籤。不適合到處亂跑或換方向，守住本業比較好，家中平安最重要。",
+    zh_meaning: "中下籤。\n不適合到處亂跑或換方向，守住本業比較好，家中平安最重要。",
     en_meaning: "Below average. Avoid unnecessary changes or travel. Stay steady and protect stability."
   },
   { no: 52, ganzhi: "壬午",
     zh_poem: `功名事業本由天，\n不須掛念意懸懸，\n若問中間遲與速，\n風雲際會在眼前。`,
-    zh_meaning: "中上籤。事情會成，只是時間問題。保持努力，機會就在不遠處。",
+    zh_meaning: "中上籤。\n事情會成，只是時間問題。保持努力，機會就在不遠處。",
     en_meaning: "Above average. Success will come. Timing matters, and opportunities are near."
   },
   { no: 53, ganzhi: "壬申",
     zh_poem: `看君來問心中事，\n積善之家慶有餘，\n運亨財子雙雙至，\n指日喜氣溢門閭。`,
-    zh_meaning: "上上籤。大旺。財運，家庭運，人際運都很好，近期會有喜事或好消息。",
+    zh_meaning: "上上籤。大旺。\n財運，家庭運，人際運都很好，近期會有喜事或好消息。",
     en_meaning: "Excellent luck. Wealth and happiness increase. Great news and joyful events are coming."
   },
   { no: 54, ganzhi: "壬戌",
     zh_poem: `孤燈寂寂夜沉沉，\n萬事清吉萬事成，\n若逢陰中有善果，\n燒得好香達神明。`,
-    zh_meaning: "中籤。前期辛苦孤單，但最後能成。保持善念與努力，就能突破黑暗。",
+    zh_meaning: "中籤。\n前期辛苦孤單，但最後能成。保持善念與努力，就能突破黑暗。",
     en_meaning: "Average luck. Hard times first, but success follows. Keep faith and keep working."
   },
   { no: 55, ganzhi: "癸丑",
     zh_poem: `須知進退總言虛，\n看看發暗未必全，\n珠玉深藏還未變，\n心中但得枉徒然。`,
-    zh_meaning: "中下籤。事情還沒成熟，真相或資源尚未出現，不宜急著決定或投資。",
+    zh_meaning: "中下籤。\n事情還沒成熟，真相或資源尚未出現，不宜急著決定或投資。",
     en_meaning: "Below average. Things are not ready. Do not rush decisions or investments."
   },
   { no: 56, ganzhi: "癸卯",
     zh_poem: `病中若得苦心勞，\n到底完全總未遭，\n去後不須回頭問，\n心中事務盡消磨。`,
-    zh_meaning: "下籤。容易疲累或身心不穩，努力也不一定有回報，建議先休息，別硬撐。",
+    zh_meaning: "下籤。\n容易疲累或身心不穩，努力也不一定有回報，建議先休息，別硬撐。",
     en_meaning: "Bad luck. You may feel exhausted. Rest and recover instead of forcing progress."
   },
   { no: 57, ganzhi: "癸巳",
     zh_poem: `勸君把定心莫虛，\n前途清吉得運時，\n到底中間無大事，\n又遇神仙守安居。`,
-    zh_meaning: "上籤。放心，沒有大災難，事情會平穩轉好，保持穩定就會順利。",
+    zh_meaning: "上籤。\n放心，沒有大災難，事情會平穩轉好，保持穩定就會順利。",
     en_meaning: "Good luck. No major danger. Stay steady and things will improve smoothly."
   },
   { no: 58, ganzhi: "癸未",
     zh_poem: `蛇身意欲變成龍，\n只恐命內運未通，\n久病且作寬心坐，\n言語雖多不可從。`,
-    zh_meaning: "中下籤。想突破但時機未到，別聽太多建議或流言，先養精蓄銳再衝。",
+    zh_meaning: "中下籤。\n想突破但時機未到，別聽太多建議或流言，先養精蓄銳再衝。",
     en_meaning: "Below average. You want to rise but timing is not ready. Ignore rumors and prepare quietly."
   },
   { no: 59, ganzhi: "癸酉",
     zh_poem: `有心作福莫遲疑，\n求名清吉正當時，\n此事必能成會合，\n財寶自然喜相隨。`,
-    zh_meaning: "上籤。求名求財都很適合，合作容易成功，努力越多收穫越大。",
+    zh_meaning: "上籤。\n求名求財都很適合，合作容易成功，努力越多收穫越大。",
     en_meaning: "Good luck. Great for career, fame, and money. Cooperation succeeds and rewards follow."
   },
   { no: 60, ganzhi: "癸亥",
     zh_poem: `月出光輝本清吉，\n浮雲總是蔽陰色，\n戶內用心再作福，\n當官分理便有益。`,
-    zh_meaning: "中上籤。整體是吉籤，但會有小阻礙。只要細心處理，工作與事務會有好結果。",
+    zh_meaning: "中上籤。\n整體是吉籤，但會有小阻礙。只要細心處理，工作與事務會有好結果。",
     en_meaning: "Above average. Overall good fortune, but small obstacles exist. Careful handling brings success."
   }
 ];
 
 
-  // 天干地支英文簡寫
   const stemEN = { "甲":"Jia", "乙":"Yi", "丙":"Bing", "丁":"Ding", "戊":"Wu", "己":"Ji", "庚":"Geng", "辛":"Xin", "壬":"Ren", "癸":"Gui" };
   const branchEN = { "子":"Zi", "丑":"Chou", "寅":"Yin", "卯":"Mao", "辰":"Chen", "巳":"Si", "午":"Wu", "未":"Wei", "申":"Shen", "酉":"You", "戌":"Xu", "亥":"Hai" };
 
-  function ganzhiToEN(gz) {
-    if (!gz || gz.length < 2) return gz || "";
+  function ganzhiToEN(gz){
+    if(!gz || gz.length < 2) return gz || "";
     const s = stemEN[gz[0]] || gz[0];
     const b = branchEN[gz[1]] || gz[1];
     return `${s} ${b}`;
@@ -1064,24 +1075,23 @@ const fortunes = [
   const fortuneMeaning = document.getElementById("fortuneMeaning");
   const fortuneTube = document.getElementById("fortuneTube");
 
-function renderFortune(f){
-  lastResult = f;
+  function renderFortune(f){
+    lastResult = f;
 
-  if(currentLang === "zh"){
-    fortuneTag.textContent = f.ganzhi;
-    fortuneNumber.textContent = "第 " + f.no + " 籤";
-    fortunePoem.textContent = f.zh_poem;
-    fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
-  }else{
-    fortuneTag.textContent = "Cycle: " + f.ganzhi;
-    fortuneNumber.textContent = "Fortune No. " + f.no;
-    fortunePoem.textContent = f.zh_poem;
-    fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
+    if(currentLang === "zh"){
+      fortuneTag.textContent = f.ganzhi;
+      fortuneNumber.textContent = "第 " + f.no + " 籤";
+      fortunePoem.textContent = f.zh_poem;
+      fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
+    }else{
+      fortuneTag.textContent = "Cycle: " + ganzhiToEN(f.ganzhi);
+      fortuneNumber.textContent = "Fortune No. " + f.no;
+      fortunePoem.textContent = f.zh_poem;
+      fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
+    }
   }
-}
 
-
-  function resetFortune() {
+  function resetFortune(){
     remaining = [...fortunes];
     lastResult = null;
 
@@ -1091,63 +1101,186 @@ function renderFortune(f){
     fortuneMeaning.textContent = tMsg("defaultMeaning");
   }
 
-  function drawFortune() {
-    if (remaining.length === 0) {
+  function showRitualModal(){
+    document.getElementById("ritualOverlay").style.display = "flex";
+  }
+
+  function hideRitualModal(){
+    document.getElementById("ritualOverlay").style.display = "none";
+  }
+
+  function showProgress(){
+    document.getElementById("progressOverlay").style.display = "flex";
+  }
+
+  function hideProgress(){
+    document.getElementById("progressOverlay").style.display = "none";
+  }
+
+  function drawFortune(){
+    if(remaining.length === 0){
       alert(tMsg("emptyTube"));
       return;
     }
 
-    // 震動效果（手機）
-    if (navigator.vibrate) {
+    showProgress();
+
+    if(navigator.vibrate){
       navigator.vibrate([80, 40, 80]);
     }
 
-    // 籤筒搖晃動畫
     fortuneTube.classList.remove("tube-shake");
     void fortuneTube.offsetWidth;
     fortuneTube.classList.add("tube-shake");
 
-    // 卡片搖晃動畫
     fortuneBox.classList.remove("shake");
     void fortuneBox.offsetWidth;
     fortuneBox.classList.add("shake");
 
-    // 播放搖籤聲
     playShakeSound();
 
-    // 掉籤動畫
     const stick = document.getElementById("stickDrop");
     stick.classList.remove("hidden");
     stick.classList.remove("drop-anim");
     void stick.offsetWidth;
     stick.classList.add("drop-anim");
 
-    // 掉籤聲（延遲）
-    setTimeout(() => {
-      playDropSound();
-    }, 180);
+    setTimeout(() => playDropSound(), 180);
 
-    // 抽籤邏輯
     const idx = Math.floor(Math.random() * remaining.length);
     const picked = remaining[idx];
     remaining.splice(idx, 1);
 
-    // 等動畫跑一下再顯示結果
     setTimeout(() => {
       renderFortune(picked);
     }, 320);
 
-    // 動畫結束後隱藏籤紙
     setTimeout(() => {
       stick.classList.add("hidden");
       stick.classList.remove("drop-anim");
-    }, 850);
+      hideProgress();
+    }, 900);
   }
 
-  document.getElementById("drawBtn").addEventListener("click", drawFortune);
+  async function generateFortuneImage(){
+    if(!lastResult){
+      alert(tMsg("noResult"));
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 900;
+    canvas.height = 1200;
+
+    const ctx = canvas.getContext("2d");
+
+    const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grd.addColorStop(0, "#1a0f0a");
+    grd.addColorStop(1, "#0b0b0f");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#f6d27b";
+    ctx.font = "bold 52px sans-serif";
+    ctx.fillText(currentLang === "zh" ? "新年運勢抽籤" : "Lucky Draw", 60, 100);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 36px sans-serif";
+
+    const tagText = currentLang === "zh"
+      ? `${lastResult.ganzhi}｜第 ${lastResult.no} 籤`
+      : `${ganzhiToEN(lastResult.ganzhi)}｜Fortune No. ${lastResult.no}`;
+
+    ctx.fillText(tagText, 60, 170);
+
+    ctx.fillStyle = "#f7f7f7";
+    ctx.font = "30px sans-serif";
+
+    let y = 260;
+    const poemLines = lastResult.zh_poem.split("\n");
+    for(const line of poemLines){
+      ctx.fillText(line, 60, y);
+      y += 52;
+    }
+
+    y += 30;
+    ctx.fillStyle = "#b9b9c5";
+    ctx.font = "26px sans-serif";
+
+    const meaningText = currentLang === "zh"
+      ? "白話解釋：" + lastResult.zh_meaning
+      : "Meaning: " + lastResult.en_meaning;
+
+    function wrapText(text, x, y, maxWidth, lineHeight){
+      const words = text.split("");
+      let line = "";
+      for(let i=0; i<words.length; i++){
+        const testLine = line + words[i];
+        const metrics = ctx.measureText(testLine);
+        if(metrics.width > maxWidth && i > 0){
+          ctx.fillText(line, x, y);
+          line = words[i];
+          y += lineHeight;
+        }else{
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+      return y;
+    }
+
+    y = wrapText(meaningText, 60, y, 780, 42) + 80;
+
+    ctx.fillStyle = "rgba(246,210,123,0.65)";
+    ctx.font = "22px sans-serif";
+    ctx.fillText("Happy Lunar New Year", 60, canvas.height - 80);
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), "image/png");
+    });
+  }
+
+  async function shareImage(){
+    const blob = await generateFortuneImage();
+    if(!blob) return;
+
+    const file = new File([blob], "fortune.png", { type: "image/png" });
+
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({
+        title: "Lucky Draw",
+        text: "My fortune for today!",
+        files: [file]
+      });
+    }else{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fortune.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert(currentLang === "zh" ? "已下載籤詩圖片（PNG）！" : "Fortune image downloaded (PNG)!");
+    }
+  }
+
+  document.getElementById("drawBtn").addEventListener("click", () => {
+    showRitualModal();
+  });
+
+  document.getElementById("ritualStartBtn").addEventListener("click", () => {
+    hideRitualModal();
+    drawFortune();
+  });
+
+  document.getElementById("ritualCancelBtn").addEventListener("click", () => {
+    hideRitualModal();
+  });
 
   document.getElementById("resetBtn").addEventListener("click", () => {
-    if (confirm(tMsg("resetConfirm"))) {
+    if(confirm(tMsg("resetConfirm"))){
       resetFortune();
     }
   });
@@ -1155,74 +1288,45 @@ function renderFortune(f){
   document.getElementById("zhBtn").addEventListener("click", () => {
     currentLang = "zh";
     applyLanguageUI();
-    if (lastResult) renderFortune(lastResult);
+    if(lastResult) renderFortune(lastResult);
     else resetFortune();
   });
 
   document.getElementById("enBtn").addEventListener("click", () => {
     currentLang = "en";
     applyLanguageUI();
-    if (lastResult) renderFortune(lastResult);
+    if(lastResult) renderFortune(lastResult);
     else resetFortune();
   });
 
   document.getElementById("copyBtn").addEventListener("click", async () => {
-    if (!lastResult) {
+    if(!lastResult){
       alert(tMsg("noResult"));
       return;
     }
 
     let text = "";
-    if (currentLang === "zh") {
+
+    if(currentLang === "zh"){
       text =
         `【${lastResult.ganzhi}】第 ${lastResult.no} 籤\n\n` +
         `${lastResult.zh_poem}\n\n` +
-        `（六十甲子籤原文）`;
- }else{
-  text =
-    `[${lastResult.ganzhi}] Fortune No. ${lastResult.no}\n\n` +
-    `${lastResult.zh_poem}\n\n` +
-    `Meaning: ${lastResult.en_meaning}\n\n` +
-    `Happy Lunar New Year!`;
-}
-
+        `白話解釋：${lastResult.zh_meaning}\n\n` +
+        `（六十甲子籤）`;
+    }else{
+      text =
+        `[${ganzhiToEN(lastResult.ganzhi)}] Fortune No. ${lastResult.no}\n\n` +
+        `${lastResult.zh_poem}\n\n` +
+        `Meaning: ${lastResult.en_meaning}\n\n` +
+        `Happy Lunar New Year!`;
+    }
 
     await navigator.clipboard.writeText(text);
     alert(tMsg("copied"));
   });
 
-  document.getElementById("shareBtn").addEventListener("click", async () => {
-    if (!lastResult) {
-      alert(tMsg("noResult"));
-      return;
-    }
+  document.getElementById("shareBtn").addEventListener("click", shareImage);
 
-    let shareText = "";
-    if (currentLang === "zh") {
-      shareText =
-        `我抽到【${lastResult.ganzhi}】第 ${lastResult.no} 籤：\n` +
-        `${lastResult.zh_poem}`;
-}else{
-  shareText =
-    `I got Fortune No. ${lastResult.no} (${lastResult.ganzhi}):\n` +
-    `${lastResult.zh_poem}\n` +
-    `Meaning: ${lastResult.en_meaning}`;
-}
-
-
-    if (navigator.share) {
-      navigator.share({
-        title: currentLang === "zh" ? "新年運勢抽籤" : "Lucky Draw",
-        text: shareText,
-        url: window.location.href
-      });
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      alert(tMsg("unsupportedShare"));
-    }
-  });
-
-  // 初始化
   applyLanguageUI();
   resetFortune();
 </script>
