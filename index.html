@@ -426,8 +426,8 @@
 
   <div class="container">
     <header>
-      <h1>新年抽籤詩 Lucky Draw</h1>
-      <p class="subtitle">按下「抽籤」抽出今日祝福，適合農曆新年活動，給外國朋友體驗超有氣氛。</p>
+      <h1>新年抽籤 Lucky Draw</h1>
+      <p class="subtitle">按下「抽籤」抽出今日祝福。</p>
     </header>
 
     <div class="panel">
@@ -472,13 +472,12 @@
         </div>
 
         <div class="note" id="noteText">
-          小提醒：抽籤是祝福儀式，適合搭配「祈願」或「祝福交換」活動一起玩。
+          小提醒：籤詩內容僅供參考，請勿過度迷信。
         </div>
       </div>
 
       <footer>
-        <div>Made for Lunar New Year vibes.</div>
-        <div class="small">你可以在程式碼內新增更多籤詩，直接增加 fortunes 陣列即可。</div>
+        <div>Happy Lunar New Year</div>
       </footer>
     </div>
   </div>
@@ -556,6 +555,15 @@
     // =========================
     // 60 支籤詩資料庫
     // =========================
+    const levelTranslate = {
+      "上上籤": "Excellent Fortune",
+      "上籤": "Good Fortune",
+      "中上籤": "Above Average Fortune",
+      "中籤": "Average Fortune",
+      "中下籤": "Below Average Fortune",
+      "下籤": "Bad Fortune"
+    };
+
     const fortunes = [
       { no: 1, level: "上上籤", zh_poem: "春風拂面喜盈門\n萬事順遂福臨身", zh_meaning: "大吉。適合開始新計畫、求職、考試、搬家，容易遇到好消息。", en_poem: "Spring breeze brings joy to your door.\nEverything flows with blessing and more.", en_meaning: "Excellent luck. Great time for new plans, job hunting, exams, and fresh starts." },
       { no: 2, level: "上籤", zh_poem: "雲散天開見月明\n前途光亮自分明", zh_meaning: "困難正在退去，事情會越來越清楚，保持耐心就會成功。", en_poem: "Clouds fade, the moon shines bright.\nYour path becomes clear with light.", en_meaning: "Troubles will fade. Stay patient and things will become clearer and better." },
@@ -630,19 +638,23 @@
     const fortuneTube = document.getElementById("fortuneTube");
 
     function renderFortune(f){
-      lastResult = f;
+  lastResult = f;
 
-      fortuneTag.textContent = f.level;
-      fortuneNumber.textContent = "第 " + f.no + " 籤";
+  const levelEN = levelTranslate[f.level] || f.level;
 
-      if(currentLang === "zh"){
-        fortunePoem.textContent = f.zh_poem;
-        fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
-      }else{
-        fortunePoem.textContent = f.en_poem;
-        fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
-      }
-    }
+  if(currentLang === "zh"){
+    fortuneTag.textContent = f.level;
+    fortuneNumber.textContent = "第 " + f.no + " 籤";
+    fortunePoem.textContent = f.zh_poem;
+    fortuneMeaning.textContent = "白話解釋：\n" + f.zh_meaning;
+  }else{
+    fortuneTag.textContent = levelEN;
+    fortuneNumber.textContent = "Fortune No. " + f.no;
+    fortunePoem.textContent = f.en_poem;
+    fortuneMeaning.textContent = "Meaning:\n" + f.en_meaning;
+  }
+}
+
 
     function resetFortune(){
       remaining = [...fortunes];
@@ -738,13 +750,17 @@
           `${lastResult.zh_poem}\n\n` +
           `白話解釋：${lastResult.zh_meaning}\n\n` +
           `新年快樂！`;
+        
       }else{
+        const levelEN = levelTranslate[lastResult.level] || lastResult.level;
+
         text =
-          `【${lastResult.level}】Fortune No. ${lastResult.no}\n\n` +
+          `【${levelEN}】Fortune No. ${lastResult.no}\n\n` +
           `${lastResult.en_poem}\n\n` +
           `Meaning: ${lastResult.en_meaning}\n\n` +
           `Happy Lunar New Year!`;
-      }
+}
+
 
       await navigator.clipboard.writeText(text);
       alert("已複製到剪貼簿！");
@@ -763,11 +779,14 @@
           `${lastResult.zh_poem}\n` +
           `解釋：${lastResult.zh_meaning}`;
       }else{
-        shareText =
-          `I got Fortune No. ${lastResult.no} (${lastResult.level}):\n` +
-          `${lastResult.en_poem}\n` +
-          `Meaning: ${lastResult.en_meaning}`;
-      }
+  const levelEN = levelTranslate[lastResult.level] || lastResult.level;
+
+  shareText =
+    `I got Fortune No. ${lastResult.no} (${levelEN}):\n` +
+    `${lastResult.en_poem}\n` +
+    `Meaning: ${lastResult.en_meaning}`;
+}
+
 
       if(navigator.share){
         navigator.share({
