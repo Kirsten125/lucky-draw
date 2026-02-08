@@ -427,7 +427,7 @@
   <div class="container">
     <header>
       <h1>新年抽籤 Lucky Draw</h1>
-      <p class="subtitle">按下「抽籤」抽出今日祝福。</p>
+      <p class="subtitle" id="subtitleText">按下「抽籤」抽出今日祝福。</p>
     </header>
 
     <div class="panel">
@@ -444,7 +444,7 @@
       <!-- 籤筒圖片 -->
       <div class="tube-area">
         <div id="fortuneTube" class="fortune-tube">
-          <div class="tube-label">籤筒</div>
+          <div class="tube-label" id="tubeLabel">籤筒</div>
         </div>
       </div>
 
@@ -484,6 +484,48 @@
 
   <script>
     let currentLang = "zh";
+
+    // =========================
+// UI 中英文字典
+// =========================
+const uiText = {
+  zh: {
+    subtitle: "按下「抽籤」抽出今日祝福。",
+    drawBtn: "🎋 抽籤",
+    tubeLabel: "籤筒",
+    copyBtn: "📋 複製籤詩",
+    shareBtn: "📲 分享",
+    noteText: "小提醒：籤詩內容僅供參考，請勿過度迷信。"
+  },
+  en: {
+    subtitle: 'Press "Lucky Draw" to receive today’s blessing.',
+    drawBtn: "🎋 Lucky Draw",
+    tubeLabel: "Lucky Draw Tube",
+    copyBtn: "📋 Copy the Lucky Draw",
+    shareBtn: "📲 Share",
+    noteText: "Note: The Lucky Draw is for reference only. Please do not be overly superstitious."
+  }
+};
+
+function applyLanguageUI(){
+  const t = uiText[currentLang];
+
+  const subtitleEl = document.getElementById("subtitleText");
+  const tubeLabelEl = document.getElementById("tubeLabel");
+
+  if(subtitleEl) subtitleEl.textContent = t.subtitle;
+
+  // 這些按鈕本來就有 id
+  document.getElementById("drawBtn").textContent = t.drawBtn;
+  document.getElementById("copyBtn").textContent = t.copyBtn;
+  document.getElementById("shareBtn").textContent = t.shareBtn;
+
+  if(tubeLabelEl) tubeLabelEl.textContent = t.tubeLabel;
+
+  const noteEl = document.getElementById("noteText");
+  if(noteEl) noteEl.textContent = t.noteText;
+}
+
 
     // =========================
     // 抽籤音效（Web Audio API）
@@ -727,16 +769,20 @@
       }
     });
 
-    document.getElementById("zhBtn").addEventListener("click", () => {
-      currentLang = "zh";
-      if(lastResult) renderFortune(lastResult);
-    });
+   document.getElementById("zhBtn").addEventListener("click", () => {
+  currentLang = "zh";
+  applyLanguageUI();
+  if(lastResult) renderFortune(lastResult);
+});
 
-    document.getElementById("enBtn").addEventListener("click", () => {
-      currentLang = "en";
-      if(lastResult) renderFortune(lastResult);
-    });
+document.getElementById("enBtn").addEventListener("click", () => {
+  currentLang = "en";
+  applyLanguageUI();
+  if(lastResult) renderFortune(lastResult);
+});
 
+applyLanguageUI();
+    
     document.getElementById("copyBtn").addEventListener("click", async () => {
       if(!lastResult){
         alert("請先抽一支籤。");
