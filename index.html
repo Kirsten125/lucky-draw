@@ -1424,82 +1424,276 @@
   }
 
   async function generateFortuneImage(){
-    if(!lastResult){
-      alert(tMsg("noResult"));
-      return;
-    }
-
-    const canvas = document.createElement("canvas");
-    canvas.width = 900;
-    canvas.height = 1200;
-
-    const ctx = canvas.getContext("2d");
-
-    const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grd.addColorStop(0, "#1a0f0a");
-    grd.addColorStop(1, "#0b0b0f");
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "#f6d27b";
-    ctx.font = "bold 52px sans-serif";
-    ctx.fillText(currentLang === "zh" ? "新年運勢抽籤" : "Lucky Draw", 60, 100);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 36px sans-serif";
-
-    const tagText = currentLang === "zh"
-      ? `${lastResult.ganzhi}｜第 ${lastResult.no} 籤`
-      : `${ganzhiToEN(lastResult.ganzhi)}｜Fortune No. ${lastResult.no}`;
-
-    ctx.fillText(tagText, 60, 170);
-
-    ctx.fillStyle = "#f7f7f7";
-    ctx.font = "30px sans-serif";
-
-    let y = 260;
-    const poemLines = lastResult.zh_poem.split("\n");
-    for(const line of poemLines){
-      ctx.fillText(line, 60, y);
-      y += 52;
-    }
-
-    y += 30;
-    ctx.fillStyle = "#b9b9c5";
-    ctx.font = "26px sans-serif";
-
-    const meaningText = currentLang === "zh"
-      ? "白話解釋：" + lastResult.zh_meaning
-      : "Meaning: " + lastResult.en_meaning;
-
-    function wrapText(text, x, y, maxWidth, lineHeight){
-      const words = text.split("");
-      let line = "";
-      for(let i=0; i<words.length; i++){
-        const testLine = line + words[i];
-        const metrics = ctx.measureText(testLine);
-        if(metrics.width > maxWidth && i > 0){
-          ctx.fillText(line, x, y);
-          line = words[i];
-          y += lineHeight;
-        }else{
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, x, y);
-      return y;
-    }
-
-    y = wrapText(meaningText, 60, y, 780, 42) + 80;
-
-    ctx.fillStyle = "rgba(246,210,123,0.65)";
-    ctx.font = "22px sans-serif";
-    ctx.fillText("Happy Lunar New Year", 60, canvas.height - 80);
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png");
-    });
+  if(!lastResult){
+    alert(tMsg("noResult"));
+    return;
   }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1600;
+
+  const ctx = canvas.getContext("2d");
+
+  // ===== 背景漸層 =====
+  const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grd.addColorStop(0, "#1a0f0a");
+  grd.addColorStop(1, "#0b0b0f");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ===== 背景柔光點點（增加質感）=====
+  function drawGlowCircle(x, y, r, color){
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  drawGlowCircle(880, 260, 260, "rgba(197,48,48,0.18)");
+  drawGlowCircle(200, 1050, 280, "rgba(246,210,123,0.10)");
+  drawGlowCircle(930, 1200, 320, "rgba(255,255,255,0.06)");
+
+  // ===== 小工具：圓角矩形 =====
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // ===== 標題 =====
+  ctx.fillStyle = "#f6d27b";
+  ctx.font = "bold 64px sans-serif";
+  ctx.fillText(currentLang === "zh" ? "新年運勢抽籤" : "Lucky Draw", 70, 140);
+
+  // ===== 子標題 =====
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "28px sans-serif";
+  ctx.fillText(currentLang === "zh" ? "新年新希望" : "New Year, New Hope", 70, 190);
+
+  // ===== 籤筒（簡化版美編）=====
+  function drawTube(x, y){
+    const w = 240;
+    const h = 320;
+
+    // 外框
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.55)";
+    ctx.shadowBlur = 20;
+
+    roundRect(x, y, w, h, 34);
+    ctx.fillStyle = "rgba(255,255,255,0.06)";
+    ctx.fill();
+    ctx.restore();
+
+    // 竹紋背景
+    ctx.save();
+    roundRect(x, y, w, h, 34);
+    ctx.clip();
+
+    for(let i=0; i<12; i++){
+      const stripeX = x + i * 20;
+      const stripeGrad = ctx.createLinearGradient(stripeX, y, stripeX + 20, y);
+      stripeGrad.addColorStop(0, "rgba(245,205,135,0.85)");
+      stripeGrad.addColorStop(0.5, "rgba(220,165,80,0.92)");
+      stripeGrad.addColorStop(1, "rgba(190,130,60,0.92)");
+      ctx.fillStyle = stripeGrad;
+      ctx.fillRect(stripeX, y, 20, h);
+    }
+
+    // 上下暗條
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fillRect(x, y, w, 36);
+    ctx.fillRect(x, y + h - 36, w, 36);
+
+    // 紅色中標籤
+    const labelW = 85;
+    const labelH = 220;
+    const labelX = x + w/2 - labelW/2;
+    const labelY = y + h/2 - labelH/2;
+
+    roundRect(labelX, labelY, labelW, labelH, 20);
+    ctx.fillStyle = "rgba(197,48,48,0.9)";
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(246,210,123,0.65)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 籤筒文字
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = "bold 36px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(currentLang === "zh" ? "籤筒" : "Fortune", x + w/2, labelY + labelH/2);
+
+    ctx.restore();
+  }
+
+  drawTube(420, 240);
+
+  // ===== 卡片區塊 =====
+  const cardX = 70;
+  const cardY = 600;
+  const cardW = 940;
+  const cardH = 820;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 25;
+  roundRect(cardX, cardY, cardW, cardH, 34);
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(246,210,123,0.20)";
+  ctx.lineWidth = 2;
+  roundRect(cardX, cardY, cardW, cardH, 34);
+  ctx.stroke();
+
+  // ===== 印章背景圓 =====
+  ctx.save();
+  ctx.globalAlpha = 0.65;
+  drawGlowCircle(cardX + cardW - 60, cardY + 70, 140, "rgba(197,48,48,0.55)");
+  ctx.restore();
+
+  // ===== 籤號 =====
+  ctx.fillStyle = "#f6d27b";
+  ctx.font = "bold 42px sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(
+    currentLang === "zh" ? `第 ${lastResult.no} 籤` : `Fortune No. ${lastResult.no}`,
+    cardX + cardW - 60,
+    cardY + 90
+  );
+
+  // ===== 橢圓標籤（干支、籤等）=====
+  function drawTag(text, x, y, bg, border, color){
+    ctx.save();
+    ctx.font = "bold 28px sans-serif";
+    const paddingX = 24;
+    const paddingY = 14;
+    const textW = ctx.measureText(text).width;
+    const w = textW + paddingX * 2;
+    const h = 52;
+
+    roundRect(x, y, w, h, 26);
+    ctx.fillStyle = bg;
+    ctx.fill();
+
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.fillText(text, x + w/2, y + 36);
+    ctx.restore();
+
+    return w;
+  }
+
+  let tagX = cardX + 60;
+  let tagY = cardY + 50;
+
+  // 干支 tag
+  const gzText = currentLang === "zh"
+    ? lastResult.ganzhi
+    : ganzhiToEN(lastResult.ganzhi);
+
+  const w1 = drawTag(
+    gzText,
+    tagX,
+    tagY,
+    "rgba(246,210,123,0.12)",
+    "rgba(246,210,123,0.28)",
+    "#f6d27b"
+  );
+
+  // 籤等 tag
+  const levelText = currentLang === "zh"
+    ? lastResult.level_zh
+    : lastResult.level_en;
+
+  drawTag(
+    levelText,
+    tagX + w1 + 18,
+    tagY,
+    "rgba(197,48,48,0.22)",
+    "rgba(197,48,48,0.45)",
+    "#ffbaba"
+  );
+
+  // ===== 籤詩內容 =====
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#f7f7f7";
+  ctx.font = "36px sans-serif";
+
+  let y = cardY + 160;
+  const poemLines = lastResult.zh_poem.split("\n");
+  for(const line of poemLines){
+    ctx.fillText(line, cardX + 60, y);
+    y += 70;
+  }
+
+  // ===== 白話解釋（你要求：後面內容換行）=====
+  y += 40;
+
+  ctx.fillStyle = "rgba(255,255,255,0.80)";
+  ctx.font = "bold 30px sans-serif";
+  ctx.fillText(
+    currentLang === "zh" ? "白話解釋：" : "Meaning:",
+    cardX + 60,
+    y
+  );
+
+  y += 55;
+
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "30px sans-serif";
+
+  const meaningText = currentLang === "zh"
+    ? lastResult.zh_meaning
+    : lastResult.en_meaning;
+
+  function wrapText(text, x, y, maxWidth, lineHeight){
+    const words = text.split("");
+    let line = "";
+    for(let i=0; i<words.length; i++){
+      const testLine = line + words[i];
+      const metrics = ctx.measureText(testLine);
+
+      if(metrics.width > maxWidth && i > 0){
+        ctx.fillText(line, x, y);
+        line = words[i];
+        y += lineHeight;
+      }else{
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, y);
+    return y;
+  }
+
+  y = wrapText(meaningText, cardX + 60, y, cardW - 120, 52);
+
+  // ===== 底部文字 =====
+  ctx.fillStyle = "rgba(246,210,123,0.70)";
+  ctx.font = "24px sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Happy Lunar New Year", 70, canvas.height - 90);
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), "image/png");
+  });
+}
+
 
   async function shareImage(){
     const blob = await generateFortuneImage();
